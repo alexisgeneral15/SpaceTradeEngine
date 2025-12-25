@@ -39,6 +39,7 @@ namespace SpaceTradeEngine.Systems
             if (target == null || amount <= 0f) return;
             var health = target.GetComponent<HealthComponent>();
             var shields = target.GetComponent<ShieldComponent>();
+                        var armor = target.GetComponent<ArmorComponent>();
             if (health == null) return;
 
             // Apply target's rank defense bonuses
@@ -66,6 +67,16 @@ namespace SpaceTradeEngine.Systems
             if (shields != null)
             {
                 remaining = shields.AbsorbDamage(remaining);
+                        // Sprint 3: Apply armor reduction
+                        if (remaining > 0f && armor != null)
+                        {
+                            float reduction = armor.CalculateDamageReduction();
+                            float reducedDamage = remaining * (1f - reduction);
+                            float armorDamage = remaining - reducedDamage;
+                            armor.DamageArmor(armorDamage * 0.1f); // Armor loses 10% of absorbed damage
+                            remaining = reducedDamage;
+                        }
+
             }
 
             if (remaining <= 0f) return;
@@ -80,6 +91,28 @@ namespace SpaceTradeEngine.Systems
             if (prev > 0 && now <= 0)
             {
                 _eventSystem.Publish(new EntityDestroyedEvent(target.Id, attackerId, EventFactory.Now()));
+                                // Sprint 3: Reputation loss when killing faction ships
+                                if (attackerId.HasValue)
+                                {
+                                    var attacker = GetEntityById(attackerId.Value);
+                                    var targetFaction = target.GetComponent<FactionComponent>();
+                                    var attackerReputation = attacker?.GetComponent<ReputationComponent>();
+                    
+                                    if (attackerReputation != null && targetFaction != null)
+                                    {
+                                        // Reputation loss: -20 base, -10 more for military/valuable targets
+                                        float repLoss = -20f;
+                                        var targetHealth = target.GetComponent<HealthComponent>();
+                                        if (targetHealth != null && targetHealth.MaxHealth > 150f)
+                                        {
+                                            repLoss -= 10f; // Capital ships cause more rep loss
+                                        }
+                        
+                                        attackerReputation.ModifyReputation(targetFaction.FactionId, repLoss);
+                                        Console.WriteLine($"[Combat] {attacker?.Name} lost {-repLoss:F0} reputation with {targetFaction.FactionName} for killing {target.Name}");
+                                    }
+                                }
+                
                 
                 // Award kill XP via rank system
                 if (_rankSystem != null && attackerId.HasValue)

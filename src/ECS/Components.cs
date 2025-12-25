@@ -150,6 +150,46 @@ namespace SpaceTradeEngine.ECS.Components
     }
 
     /// <summary>
+    /// Armor component - reduces incoming damage.
+    /// Sprint 3: Combat enhancement.
+    /// </summary>
+    public class ArmorComponent : Component
+    {
+        public float ArmorRating { get; set; } = 0f;
+        public float MaxArmor { get; set; } = 100f;
+        public float CurrentArmor { get; set; }
+        
+        public override void Initialize()
+        {
+            CurrentArmor = MaxArmor;
+        }
+        
+        public float CalculateDamageReduction()
+        {
+            if (CurrentArmor <= 0) return 0f;
+            float effectiveArmor = ArmorRating * (CurrentArmor / MaxArmor);
+            return effectiveArmor / (effectiveArmor + 100f);
+        }
+        
+        public void DamageArmor(float amount)
+        {
+            CurrentArmor = Math.Max(0, CurrentArmor - amount);
+        }
+    }
+
+    /// <summary>
+    /// Salvage component - defines what a ship drops on death.
+    /// Sprint 3: Salvage system.
+    /// </summary>
+    public class SalvageComponent : Component
+    {
+        public Dictionary<string, int> SalvageWares { get; set; } = new Dictionary<string, int>();
+        public float SalvageCredits { get; set; } = 0f;
+        public float SalvageValueMultiplier { get; set; } = 1.0f;
+        public bool IsCollected { get; set; } = false;
+    }
+
+    /// <summary>
     /// Faction component - identifies which faction an entity belongs to.
     /// Sprint 2: Extended with territory, power indicators, and faction color.
     /// </summary>

@@ -92,6 +92,13 @@ namespace SpaceTradeEngine.Core
                 CurrentHealth = 200f
             });
 
+            _playerShip.AddComponent(new ArmorComponent
+            {
+                ArmorRating = 50f,
+                MaxArmor = 100f,
+                CurrentArmor = 100f
+            });
+
             _playerShip.AddComponent(new WeaponComponent
             {
                 Id = "laser_cannon",
@@ -231,6 +238,19 @@ namespace SpaceTradeEngine.Core
                 {
                     MaxHealth = 100f,
                     CurrentHealth = 100f
+                });
+
+                enemy.AddComponent(new ArmorComponent
+                {
+                    ArmorRating = 30f,
+                    MaxArmor = 50f,
+                    CurrentArmor = 50f
+                });
+
+                enemy.AddComponent(new SalvageComponent
+                {
+                    SalvageCredits = 500f + (float)new Random().Next(200),
+                    SalvageValueMultiplier = 1.0f
                 });
 
                 enemy.AddComponent(new WeaponComponent

@@ -74,6 +74,9 @@ namespace SpaceTradeEngine.Core
         private Gameplay.EventManager _eventManager;
         private UI.FactionPanel _factionPanel;
         
+            // Sprint 3 systems - Combat V1 + AI
+            private SalvageSystem _salvageSystem;
+        
         // Campaign and player systems
         private CampaignManager _campaignManager;
         private PlayerInputSystem _playerInputSystem;
@@ -1057,6 +1060,10 @@ namespace SpaceTradeEngine.Core
             _damageSystem = new DamageSystem(_eventSystem);
             _damageSystem.SetRankSystem(_rankSystem);
             _entityManager.RegisterSystem(_damageSystem);
+            
+                        // Sprint 3: Salvage system for combat rewards
+                        _salvageSystem = new SalvageSystem(_eventSystem, _entityManager);
+                        _entityManager.RegisterSystem(_salvageSystem);
             
             // Link trader AI system with rank system for XP rewards (disabled in skeleton)
             // _traderAISystem.SetRankSystem(_rankSystem);
