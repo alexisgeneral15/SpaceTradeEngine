@@ -17,10 +17,16 @@ namespace SpaceTradeEngine.Systems
         private readonly List<Contract> _activeContracts = new();
         private readonly Random _random = new();
         private int _nextContractId = 1;
+        private EntityManager? _entityManager;
 
         public ContractSystem(MarketManager marketManager)
         {
             _marketManager = marketManager;
+        }
+
+        public void SetEntityManager(EntityManager entityManager)
+        {
+            _entityManager = entityManager;
         }
 
         public List<Contract> GetAvailableContracts() => _activeContracts.Where(c => c.Status == ContractStatus.Available).ToList();
@@ -75,7 +81,7 @@ namespace SpaceTradeEngine.Systems
         }
 
         /// <summary>
-        /// Accept a contract for an entity (player/NPC).
+        /// Accept a contract for an entity (player/NPC) and load cargo automatically.
         /// </summary>
         public bool AcceptContract(int contractId, int entityId)
         {
@@ -83,10 +89,40 @@ namespace SpaceTradeEngine.Systems
             if (contract == null || contract.Status != ContractStatus.Available)
                 return false;
 
-            contract.Status = ContractStatus.Active;
-            contract.AssignedEntityId = entityId;
-            contract.StartTime = DateTime.Now;
-            return true;
+            if (_entityManager == null)
+                return false;
+
+            var entity = _entityManager.GetEntity(entityId);
+            if (entity == null)
+                return false;
+
+            var cargo = entity.GetComponent<CargoComponent>();
+            if (cargo == null)
+                return false;
+
+            // Get ware template for volume
+            var wareTemplate = _marketManager.GetWareTemplate(contract.WareId);
+            if (wareTemplate == null)
+                return false;
+
+            // Check if entity has enough cargo space
+            if (!cargo.CanAdd(contract.WareId, contract.Quantity, wareTemplate.Volume))
+            {
+                Console.WriteLine($"[Contract] Not enough cargo space for {contract.Quantity}x {contract.WareId}");
+                return false;
+            }
+
+            // Load cargo
+            if (cargo.Add(contract.WareId, contract.Quantity, wareTemplate.Volume))
+            {
+                contract.Status = ContractStatus.Active;
+                contract.AssignedEntityId = entityId;
+                contract.StartTime = DateTime.Now;
+                Console.WriteLine($"[Contract] Loaded {contract.Quantity}x {contract.WareId} into cargo");
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -108,12 +144,36 @@ namespace SpaceTradeEngine.Systems
             // Remove cargo
             cargo.Remove(contract.WareId, contract.Quantity, ware.Volume);
 
-            // Pay reward (add credits component if needed)
-            // TODO: Add CreditsComponent and pay here
+            // Pay reward to cargo credits
+            cargo.Credits += contract.Reward;
+            Console.WriteLine($"[Contract] Completed! Paid {contract.Reward:F0} credits. Total: {cargo.Credits:F0}");
 
             contract.Status = ContractStatus.Completed;
             contract.CompletionTime = DateTime.Now;
             return true;
+        }
+
+        /// <summary>
+        /// Check and auto-complete contracts when player is near destination station.
+        /// </summary>
+        public void CheckProximityCompletion(Entity entity, int nearbyStationId, float distance, float completionRange = 150f)
+        {
+            if (distance > completionRange)
+                return;
+
+            var activeContracts = _activeContracts
+                .Where(c => c.Status == ContractStatus.Active && 
+                           c.AssignedEntityId == entity.Id &&
+                           c.DestinationStationId == nearbyStationId)
+                .ToList();
+
+            foreach (var contract in activeContracts)
+            {
+                if (CompleteContract(contract.Id, entity))
+                {
+                    Console.WriteLine($"[Contract] Auto-completed delivery at Station #{nearbyStationId}");
+                }
+            }
         }
 
         /// <summary>

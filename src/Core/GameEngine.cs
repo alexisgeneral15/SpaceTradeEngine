@@ -333,7 +333,7 @@ namespace SpaceTradeEngine.Core
 
             // Quick demo helpers (varios eliminados por falta de sistemas)
             // if (_inputManager.IsKeyPressed(Keys.F1)) SpawnFactionAIDemo();  // ELIMINADO: usa _factionAISystem
-            // if (_inputManager.IsKeyPressed(Keys.F2)) SpawnEconomyDemo();     // ELIMINADO: usa _stationSystem, _shipyardSystem
+            if (_inputManager.IsKeyPressed(Keys.F2)) TestContractWorkflow();  // Sprint 1: Test contract acceptance/completion
             if (_inputManager.IsKeyPressed(Keys.F3)) SpawnMilitaryRankDemo();
             if (_inputManager.IsKeyPressed(Keys.F4)) SpawnDynamicEventDemo();
             if (_inputManager.IsKeyPressed(Keys.F7)) PrintMemoryArenaStats();
@@ -556,6 +556,9 @@ namespace SpaceTradeEngine.Core
             _marketManager?.UpdatePrices(deltaTime);
             _contractSystem?.Update(deltaTime);
             
+            // Check contract completion based on player proximity to stations
+            CheckContractProximityCompletion();
+            
             // Update rendering system camera
             _renderingSystem.UpdateCamera(_inputManager);
 
@@ -566,6 +569,28 @@ namespace SpaceTradeEngine.Core
             if (_campaignManager?.PlayerShip != null)
             {
                 _gameHUD?.SetPlayerShip(_campaignManager.PlayerShip);
+            }
+        }
+
+        private void CheckContractProximityCompletion()
+        {
+            if (_contractSystem == null || _campaignManager?.PlayerShip == null || _spatialSystem == null)
+                return;
+
+            var playerTransform = _campaignManager.PlayerShip.GetComponent<TransformComponent>();
+            if (playerTransform == null)
+                return;
+
+            // Check proximity to all stations
+            var stations = _campaignManager.GetStations();
+            foreach (var station in stations)
+            {
+                var stationTransform = station.GetComponent<TransformComponent>();
+                if (stationTransform == null)
+                    continue;
+
+                float distance = Vector2.Distance(playerTransform.Position, stationTransform.Position);
+                _contractSystem.CheckProximityCompletion(_campaignManager.PlayerShip, station.Id, distance, completionRange: 200f);
             }
         }
 
@@ -1047,6 +1072,7 @@ namespace SpaceTradeEngine.Core
             };
             _pathfindingSystem = new PathfindingSystem();
             _contractSystem = new ContractSystem(_marketManager);
+            _contractSystem.SetEntityManager(_entityManager);
             // Note: ContractSystem and PathfindingSystem are utility classes, not ECS systems
 
             // Player input system for ship control
@@ -1724,6 +1750,67 @@ namespace SpaceTradeEngine.Core
             var arena = GlobalMemoryArena.Instance;
             var stats = arena.GetStats();
             SimpleLogger.LogMemoryStats(stats);
+        }
+
+        private void TestContractWorkflow()
+        {
+            if (_campaignManager?.PlayerShip == null || _contractSystem == null)
+            {
+                Console.WriteLine("[Test] Cannot test: campaign not started");
+                return;
+            }
+
+            Console.WriteLine("\n═══ TESTING CONTRACT WORKFLOW ═══");
+
+            var availableContracts = _contractSystem.GetAvailableContracts();
+            if (availableContracts.Count == 0)
+            {
+                Console.WriteLine("[Test] No contracts available");
+                return;
+            }
+
+            // Test 1: Accept first contract
+            var contract = availableContracts[0];
+            Console.WriteLine($"\n[Test] Accepting contract #{contract.Id}: {contract.GetDescription()}");
+            Console.WriteLine($"  Reward: {contract.Reward:F0} credits | Time limit: {contract.TimeLimit:F0}s");
+
+            var cargo = _campaignManager.PlayerShip.GetComponent<CargoComponent>();
+            if (cargo != null)
+            {
+                Console.WriteLine($"  Before: Credits={cargo.Credits:F0}, Cargo={cargo.CurrentVolume:F1}/{cargo.MaxVolume:F1}");
+            }
+
+            bool accepted = _contractSystem.AcceptContract(contract.Id, _campaignManager.PlayerShip.Id);
+            Console.WriteLine($"  Acceptance: {(accepted ? "SUCCESS" : "FAILED")}");
+
+            if (accepted && cargo != null)
+            {
+                Console.WriteLine($"  After: Credits={cargo.Credits:F0}, Cargo={cargo.CurrentVolume:F1}/{cargo.MaxVolume:F1}");
+                Console.WriteLine($"  Cargo loaded: {cargo.GetQuantity(contract.WareId)}x {contract.WareId}");
+
+                // Test 2: Teleport player near destination station
+                var stations = _campaignManager.GetStations();
+                var destStation = stations.FirstOrDefault(s => s.Id == contract.DestinationStationId);
+                if (destStation != null)
+                {
+                    var playerTransform = _campaignManager.PlayerShip.GetComponent<TransformComponent>();
+                    var stationTransform = destStation.GetComponent<TransformComponent>();
+                    if (playerTransform != null && stationTransform != null)
+                    {
+                        Console.WriteLine($"\n[Test] Teleporting player near destination station #{contract.DestinationStationId}");
+                        playerTransform.Position = stationTransform.Position + new Vector2(150, 0); // 150 units away
+                        Console.WriteLine($"  Player position: {playerTransform.Position}");
+                        Console.WriteLine($"  Station position: {stationTransform.Position}");
+
+                        // Test 3: Trigger proximity completion (will happen in next Update)
+                        Console.WriteLine($"\n[Test] Proximity completion will trigger automatically in next frame");
+                        Console.WriteLine($"  Watch for auto-completion message!");
+                    }
+                }
+            }
+
+            Console.WriteLine("═══ TEST COMPLETE ═══\n");
+            Console.WriteLine("TIP: Press F2 again to test another contract");
         }
     }
 }
