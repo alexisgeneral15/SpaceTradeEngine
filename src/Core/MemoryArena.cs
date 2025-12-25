@@ -136,7 +136,7 @@ namespace SpaceTradeEngine.Core
     /// </summary>
     public static class GlobalMemoryArena
     {
-        private static readonly Lazy<MemoryArena> _instance = new(() => new MemoryArena(1_000_000));
+        private static readonly Lazy<MemoryArena> _instance = new(() => new MemoryArena(10_000_000)); // 10MB for spatial partitioning
 
         public static MemoryArena Instance => _instance.Value;
 
