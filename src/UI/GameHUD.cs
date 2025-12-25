@@ -64,8 +64,7 @@ namespace SpaceTradeEngine.UI
             // Cargo
             if (cargo != null)
             {
-                int usedCapacity = cargo.Items.Values.Sum(item => item.Quantity);
-                string cargoText = $"CARGO: {usedCapacity}/{cargo.Capacity:F0}";
+                string cargoText = $"CARGO: {cargo.CurrentVolume:F0}/{cargo.MaxVolume:F0}";
                 renderer.RenderText(spriteBatch, cargoText, new Vector2(padding, y), Color.Cyan);
                 y += 30f;
             }

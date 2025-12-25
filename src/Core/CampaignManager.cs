@@ -97,7 +97,7 @@ namespace SpaceTradeEngine.Core
 
             _playerShip.AddComponent(new CargoComponent
             {
-                Capacity = 1000f,
+                MaxVolume = 1000f,
                 Credits = 10000f
             });
 
@@ -146,7 +146,7 @@ namespace SpaceTradeEngine.Core
 
                 station.AddComponent(new CargoComponent
                 {
-                    Capacity = 5000f,
+                    MaxVolume = 5000f,
                     Credits = 50000f
                 });
 

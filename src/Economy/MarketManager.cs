@@ -142,15 +142,59 @@ namespace SpaceTradeEngine.Economy
         public string WareId { get; set; } = string.Empty;
         public int StockLevel { get; set; }
         public int MaxStock { get; set; } = 1000;
+        public int MinStock { get; set; } = 0;
         public float BasePrice { get; set; }
         public float CurrentPrice { get; set; }
         public float Demand { get; set; } = 1f;
         public float Supply { get; set; } = 1f;
         public float PriceFriction { get; set; } = 0.5f;
+        
+        // Supply/demand simulation
+        public float ConsumptionRate { get; set; } = 1f; // units per minute
+        public float ProductionRate { get; set; } = 1f;  // units per minute
+        public bool IsProduced { get; set; } = false;
+        public bool IsConsumed { get; set; } = true;
+        
+        private float _updateAccumulator = 0f;
+        private const float UPDATE_INTERVAL = 5f; // seconds between supply/demand updates
 
         public void Update(float deltaSeconds)
         {
+            _updateAccumulator += deltaSeconds;
+            
+            // Simulate consumption/production
+            if (_updateAccumulator >= UPDATE_INTERVAL)
+            {
+                float minutesPassed = _updateAccumulator / 60f;
+                
+                if (IsConsumed)
+                {
+                    int consumed = (int)(ConsumptionRate * minutesPassed);
+                    StockLevel = Math.Max(MinStock, StockLevel - consumed);
+                }
+                
+                if (IsProduced)
+                {
+                    int produced = (int)(ProductionRate * minutesPassed);
+                    StockLevel = Math.Min(MaxStock, StockLevel + produced);
+                }
+                
+                _updateAccumulator = 0f;
+            }
+            
+            // Calculate supply ratio (0 = empty, 1 = full)
+            float stockRatio = (float)StockLevel / Math.Max(1, MaxStock);
+            
+            // Supply increases price when low, decreases when high
+            Supply = 0.5f + stockRatio; // range: 0.5 to 1.5
+            
+            // Demand increases when stock is low (shortage drives demand)
+            Demand = 2f - stockRatio; // range: 1 to 2
+            
+            // Calculate target price based on supply/demand
             float targetPrice = BasePrice * (Demand / Math.Max(0.1f, Supply));
+            
+            // Smooth price changes
             CurrentPrice = Lerp(CurrentPrice, targetPrice, PriceFriction * deltaSeconds);
         }
 

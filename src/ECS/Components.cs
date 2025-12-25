@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-#nullable enable
 using Microsoft.Xna.Framework.Graphics;
+using SpaceTradeEngine.World;
+#nullable enable
 
 namespace SpaceTradeEngine.ECS.Components
 {
@@ -316,6 +317,109 @@ namespace SpaceTradeEngine.ECS.Components
 
             float remaining = mitigated - absorbed + pierce;
             return remaining;
+        }
+    }
+
+    /// <summary>
+    /// Cargo component for storing wares and inventory
+    /// </summary>
+    public class CargoComponent : Component
+    {
+        public float Credits { get; set; } = 0f;
+        public float MaxVolume { get; set; } = 100f;
+        public float CurrentVolume { get; private set; } = 0f;
+        public Dictionary<string, int> Inventory { get; } = new();
+
+        public bool CanAdd(string wareId, int quantity, float volumePerUnit)
+        {
+            float volumeNeeded = quantity * volumePerUnit;
+            return CurrentVolume + volumeNeeded <= MaxVolume;
+        }
+
+        public bool Add(string wareId, int quantity, float volumePerUnit)
+        {
+            if (!CanAdd(wareId, quantity, volumePerUnit))
+                return false;
+
+            if (Inventory.ContainsKey(wareId))
+                Inventory[wareId] += quantity;
+            else
+                Inventory[wareId] = quantity;
+
+            CurrentVolume += quantity * volumePerUnit;
+            return true;
+        }
+
+        public bool Remove(string wareId, int quantity, float volumePerUnit)
+        {
+            if (!Inventory.ContainsKey(wareId) || Inventory[wareId] < quantity)
+                return false;
+
+            Inventory[wareId] -= quantity;
+            if (Inventory[wareId] <= 0)
+                Inventory.Remove(wareId);
+
+            CurrentVolume -= quantity * volumePerUnit;
+            CurrentVolume = Math.Max(0f, CurrentVolume);
+            return true;
+        }
+
+        public int GetQuantity(string wareId)
+        {
+            return Inventory.TryGetValue(wareId, out var qty) ? qty : 0;
+        }
+
+        public bool Contains(string wareId, int quantity)
+        {
+            return GetQuantity(wareId) >= quantity;
+        }
+
+        public float GetFreeVolume()
+        {
+            return MaxVolume - CurrentVolume;
+        }
+
+        public float GetUsedPercent()
+        {
+            return CurrentVolume / MaxVolume;
+        }
+    }
+
+    /// <summary>
+    /// Navigation component for pathfinding state
+    /// </summary>
+    public class NavigationComponent : Component
+    {
+        public List<Vector2Int> Path { get; set; } = new();
+        public int CurrentWaypointIndex { get; set; } = 0;
+        public Vector2Int? Destination { get; set; }
+        public bool IsNavigating => Path.Count > 0 && CurrentWaypointIndex < Path.Count;
+
+        public Vector2Int? GetCurrentWaypoint()
+        {
+            if (IsNavigating)
+                return Path[CurrentWaypointIndex];
+            return null;
+        }
+
+        public void AdvanceWaypoint()
+        {
+            if (IsNavigating)
+                CurrentWaypointIndex++;
+        }
+
+        public void ClearPath()
+        {
+            Path.Clear();
+            CurrentWaypointIndex = 0;
+            Destination = null;
+        }
+
+        public void SetPath(List<Vector2Int> newPath, Vector2Int destination)
+        {
+            Path = newPath;
+            CurrentWaypointIndex = 0;
+            Destination = destination;
         }
     }
 }

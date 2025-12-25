@@ -225,7 +225,7 @@ namespace SpaceTradeEngine.Systems
             {
                 ship.AddComponent(new CargoComponent 
                 { 
-                    Capacity = blueprint.CargoCapacity,
+                    MaxVolume = blueprint.CargoCapacity,
                     Credits = 5000f 
                 });
             }

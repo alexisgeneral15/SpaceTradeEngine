@@ -1237,7 +1237,7 @@ namespace SpaceTradeEngine.Core
             miner.AddComponent(new TagComponent("ship"));
             miner.AddComponent(new SelectionComponent { IsSelectable = true });
             miner.AddComponent(new MiningComponent { ExtractionRate = 20f, Range = 150f });
-            miner.AddComponent(new CargoComponent { Capacity = 500f });
+            miner.AddComponent(new CargoComponent { MaxVolume = 500f });
             miner.AddComponent(new AIBehaviorComponent { DefaultBehavior = AIBehaviorType.Mine, CruiseSpeed = 150f });
 
             _overlays.Add(new OverlayText { WorldPos = center, Text = "Mining Op Spawned", Color = Color.Gold, TTL = 2f });
@@ -1490,9 +1490,9 @@ namespace SpaceTradeEngine.Core
                 trader.AddComponent(new VelocityComponent());
                 trader.AddComponent(new FactionComponent(traderFaction));
                 // Note: SpriteComponent needs texture setup
-                trader.AddComponent(new Systems.CargoComponent 
+                trader.AddComponent(new CargoComponent 
                 { 
-                    Capacity = 100, 
+                    MaxVolume = 100, 
                     Credits = 5000f 
                 });
                 trader.AddComponent(new TraderAIComponent 

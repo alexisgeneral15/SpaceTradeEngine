@@ -109,11 +109,11 @@ namespace SpaceTradeEngine.Systems
             distressShip.AddComponent(new HealthComponent { MaxHealth = 80f, CurrentHealth = 20f }); // Damaged!
             distressShip.AddComponent(new FactionComponent("civilian", "Civilian"));
             distressShip.AddComponent(new TagComponent("distress"));
-            distressShip.AddComponent(new CargoComponent { Capacity = 50 });
+            distressShip.AddComponent(new CargoComponent { MaxVolume = 50 });
             
             // Add valuable cargo as reward
             var cargo = distressShip.GetComponent<CargoComponent>();
-            cargo.Add("rare_artifacts", 5);
+            cargo.Add("rare_artifacts", 5, 1.0f);
 
             // Spawn pirates attacking them
             for (int i = 0; i < 2; i++)
@@ -221,7 +221,7 @@ namespace SpaceTradeEngine.Systems
                 merchant.AddComponent(new HealthComponent { MaxHealth = 150f });
                 merchant.AddComponent(new FactionComponent("trade_guild", "Trade Guild"));
                 merchant.AddComponent(new TagComponent("trader"));
-                merchant.AddComponent(new CargoComponent { Capacity = 100 });
+                merchant.AddComponent(new CargoComponent { MaxVolume = 100 });
                 merchant.AddComponent(new RankComponent { CurrentRank = Rank.Experienced, EntityType = EntityType.Civilian });
                 merchant.AddComponent(new TraderAIComponent { MinProfitMargin = 0.12f });
             }
@@ -301,12 +301,12 @@ namespace SpaceTradeEngine.Systems
             derelict.AddComponent(new VelocityComponent { LinearVelocity = Vector2.Zero });
             derelict.AddComponent(new CollisionComponent { Radius = 40f, IsTrigger = true });
             derelict.AddComponent(new TagComponent("derelict"));
-            derelict.AddComponent(new CargoComponent { Capacity = 200 });
+            derelict.AddComponent(new CargoComponent { MaxVolume = 200 });
             
             // Load with valuable loot
             var cargo = derelict.GetComponent<CargoComponent>();
-            cargo.Add("ancient_tech", 3);
-            cargo.Add("rare_artifacts", 5);
+            cargo.Add("ancient_tech", 3, 1.0f);
+            cargo.Add("rare_artifacts", 5, 1.0f);
             cargo.Credits = _random.Next(5000, 15000);
 
             var evt = new DynamicEvent
@@ -421,13 +421,13 @@ namespace SpaceTradeEngine.Systems
             merchant.AddComponent(new HealthComponent { MaxHealth = 200f });
             merchant.AddComponent(new FactionComponent("neutral", "Wandering Merchant"));
             merchant.AddComponent(new TagComponent("special_trader"));
-            merchant.AddComponent(new CargoComponent { Capacity = 150 });
+            merchant.AddComponent(new CargoComponent { MaxVolume = 150 });
             merchant.AddComponent(new RankComponent { CurrentRank = Rank.Elite, EntityType = EntityType.Civilian });
             
             // Add rare goods
             var cargo = merchant.GetComponent<CargoComponent>();
-            cargo.Add("legendary_weapon", 1);
-            cargo.Add("shield_booster", 2);
+            cargo.Add("legendary_weapon", 1, 1.0f);
+            cargo.Add("shield_booster", 2, 1.0f);
 
             var evt = new DynamicEvent
             {

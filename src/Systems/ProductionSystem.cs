@@ -105,7 +105,7 @@ namespace SpaceTradeEngine.Systems
 
             foreach (var input in job.InputWares)
             {
-                cargo.Remove(input.Key, input.Value);
+                cargo.Remove(input.Key, input.Value, 1.0f);
             }
         }
 
@@ -114,9 +114,9 @@ namespace SpaceTradeEngine.Systems
             var cargo = entity.GetComponent<CargoComponent>();
             if (cargo == null) return;
 
-            if (cargo.UsedCapacity + job.OutputQuantity <= cargo.Capacity)
+            if (cargo.CurrentVolume + job.OutputQuantity <= cargo.MaxVolume)
             {
-                cargo.Add(job.OutputWareId, job.OutputQuantity);
+                cargo.Add(job.OutputWareId, job.OutputQuantity, 1.0f);
             }
             else
             {

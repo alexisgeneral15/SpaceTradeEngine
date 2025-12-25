@@ -213,7 +213,11 @@ namespace SpaceTradeEngine.Systems
                 if (cost > cargo.Credits)
                     return false;
 
-                cargo.Add(wareId, quantity);
+                var wareTemplate = _markets.GetWareTemplate(wareId);
+                if (wareTemplate == null || !cargo.CanAdd(wareId, quantity, wareTemplate.Volume))
+                    return false;
+
+                cargo.Add(wareId, quantity, wareTemplate.Volume);
                 cargo.Credits -= cost;
 
                 _eventSystem.Publish(new TradeCompletedEvent
@@ -237,8 +241,12 @@ namespace SpaceTradeEngine.Systems
                 if (!_markets.CanSell(stationId, wareId, quantity))
                     return false;
 
+                var wareTemplate = _markets.GetWareTemplate(wareId);
+                if (wareTemplate == null)
+                    return false;
+
                 float revenue = _markets.Sell(stationId, wareId, quantity);
-                cargo.Remove(wareId, quantity);
+                cargo.Remove(wareId, quantity, wareTemplate.Volume);
                 cargo.Credits += revenue;
 
                 _eventSystem.Publish(new TradeCompletedEvent

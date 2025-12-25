@@ -112,7 +112,7 @@ namespace SpaceTradeEngine.Systems
             }
 
             // Check cargo space
-            if (cargo.UsedCapacity >= cargo.Capacity)
+            if (cargo.CurrentVolume >= cargo.MaxVolume)
             {
                 mining.CurrentTargetId = -1;
                 return;
@@ -121,12 +121,12 @@ namespace SpaceTradeEngine.Systems
             // Extract resources
             float extractRate = mining.ExtractionRate * deltaTime;
             float extracted = Math.Min(extractRate, resource.Quantity);
-            extracted = Math.Min(extracted, cargo.Capacity - cargo.UsedCapacity);
+            extracted = Math.Min(extracted, cargo.MaxVolume - cargo.CurrentVolume);
 
             if (extracted > 0)
             {
                 resource.Quantity -= extracted;
-                cargo.Add(resource.ResourceType, (int)extracted);
+                cargo.Add(resource.ResourceType, (int)extracted, 1.0f);
                 mining.TotalExtracted += extracted;
 
                 if (resource.Quantity <= 0)

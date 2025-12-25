@@ -113,7 +113,7 @@ namespace SpaceTradeEngine.Systems
             CargoComponent cargo, TransformComponent transform)
         {
             // Find profitable trade opportunity
-            var tradeRoute = FindBestTradeRoute(transform.Position, (int)cargo.Capacity, traderComp.MinProfitMargin);
+            var tradeRoute = FindBestTradeRoute(transform.Position, (int)cargo.MaxVolume, traderComp.MinProfitMargin);
 
             if (tradeRoute != null)
             {
@@ -220,7 +220,7 @@ namespace SpaceTradeEngine.Systems
             }
             
             // Buy goods
-            int availableCapacity = (int)(cargo.Capacity - cargo.UsedCapacity);
+            int availableCapacity = (int)(cargo.MaxVolume - cargo.CurrentVolume);
             int quantityToBuy = Math.Min(route.Quantity, availableCapacity);
             if (quantityToBuy > 0)
             {
@@ -334,21 +334,21 @@ namespace SpaceTradeEngine.Systems
             }
             
             // Sell all goods of this type
-            var cargoItem = cargo.Items.GetValueOrDefault(route.WareId);
-            if (cargoItem != null && cargoItem.Quantity > 0)
+            int quantity = cargo.GetQuantity(route.WareId);
+            if (quantity > 0)
             {
                 bool success = _stationSystem.TradeWithStation(
                     traderAI.CurrentStationId.Value,
                     entity,
                     route.WareId,
-                    cargoItem.Quantity,
+                    quantity,
                     buying: false
                 );
 
                 if (success)
                 {
                     // Track actual revenue with rank bonus
-                    float actualRevenue = route.SellPrice * cargoItem.Quantity * sellPriceModifier;
+                    float actualRevenue = route.SellPrice * quantity * sellPriceModifier;
                     traderAI.TotalProfit += actualRevenue;
                     traderAI.SuccessfulTrades++;
                     
@@ -356,7 +356,7 @@ namespace SpaceTradeEngine.Systems
                     if (_rankSystem != null && rank != null && traderAI.LastPurchaseCost > 0)
                     {
                         float profitMargin = (actualRevenue - traderAI.LastPurchaseCost) / traderAI.LastPurchaseCost;
-                        _rankSystem.AwardTradeExperience(entity, profitMargin, cargoItem.Quantity);
+                        _rankSystem.AwardTradeExperience(entity, profitMargin, quantity);
                     }
                 }
             }
