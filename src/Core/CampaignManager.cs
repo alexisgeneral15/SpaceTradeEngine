@@ -18,6 +18,7 @@ namespace SpaceTradeEngine.Core
         private bool _campaignStarted;
         private readonly List<Entity> _enemies = new();
         private readonly List<Entity> _stations = new();
+        private Gameplay.FactionManager? _factionManager;
 
         public Entity? PlayerShip => _playerShip;
         public bool CampaignStarted => _campaignStarted;
@@ -25,6 +26,14 @@ namespace SpaceTradeEngine.Core
         public CampaignManager(EntityManager entityManager)
         {
             _entityManager = entityManager;
+        }
+        
+        /// <summary>
+        /// Set faction manager for assigning factions to entities.
+        /// </summary>
+        public void SetFactionManager(Gameplay.FactionManager factionManager)
+        {
+            _factionManager = factionManager;
         }
 
         public void StartNewCampaign()
@@ -108,24 +117,33 @@ namespace SpaceTradeEngine.Core
             });
 
             _playerShip.AddComponent(new PlayerControlComponent());
+            
+            // Sprint 2: Add reputation tracking
+            var reputation = new ReputationComponent();
+            // Start with neutral reputation (0) with all factions
+            reputation.SetReputation("human_federation", 0f);
+            reputation.SetReputation("drath_empire", 0f);
+            reputation.SetReputation("traders_guild", 0f);
+            reputation.SetReputation("pirates", -50f); // Start hostile with pirates
+            _playerShip.AddComponent(reputation);
 
             // CRITICAL: Re-register with systems AFTER adding all components
             // so systems like PlayerInputSystem can see it has PlayerControlComponent
             _entityManager.RefreshEntity(_playerShip);
 
-            Console.WriteLine($"✓ Player ship spawned at {startPos}");
+            Console.WriteLine($"✓ Player ship spawned at {startPos} with reputation tracking");
         }
 
         private void SpawnTradeNetwork()
         {
             var stations = new[]
             {
-                ("Alpha_Station", new Vector2(-400, -400), Color.CornflowerBlue),
-                ("Beta_Outpost", new Vector2(400, -400), Color.SteelBlue),
-                ("Gamma_Hub", new Vector2(0, 400), Color.DodgerBlue),
+                ("Alpha_Station", new Vector2(-400, -400), Color.CornflowerBlue, "human_federation"),
+                ("Beta_Outpost", new Vector2(400, -400), Color.SteelBlue, "traders_guild"),
+                ("Gamma_Hub", new Vector2(0, 400), Color.DodgerBlue, "drath_empire"),
             };
 
-            foreach (var (name, pos, color) in stations)
+            foreach (var (name, pos, color, factionId) in stations)
             {
                 var station = _entityManager.CreateEntity(name);
 
@@ -149,9 +167,20 @@ namespace SpaceTradeEngine.Core
                     MaxVolume = 5000f,
                     Credits = 50000f
                 });
+                
+                // Assign faction
+                var factionEntity = _factionManager?.GetFaction(factionId);
+                if (factionEntity != null)
+                {
+                    var factionComp = factionEntity.GetComponent<FactionComponent>();
+                    if (factionComp != null)
+                    {
+                        station.AddComponent(new FactionComponent(factionComp.FactionId, factionComp.FactionName, factionComp.FactionColor));
+                    }
+                }
 
                 _stations.Add(station);
-                Console.WriteLine($"✓ Trading station {name} spawned at {pos}");
+                Console.WriteLine($"✓ Trading station {name} ({factionId}) spawned at {pos}");
             }
         }
 
@@ -196,7 +225,7 @@ namespace SpaceTradeEngine.Core
                     IsTrigger = false
                 });
 
-                enemy.AddComponent(new FactionComponent("pirate", "Pirates"));
+                enemy.AddComponent(new FactionComponent("pirates", "Pirate Clans"));
 
                 enemy.AddComponent(new HealthComponent
                 {

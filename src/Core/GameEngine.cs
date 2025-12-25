@@ -11,6 +11,7 @@ using SpaceTradeEngine.Data;
 using SpaceTradeEngine.Events;
 using SpaceTradeEngine.ECS.Components;
 using SpaceTradeEngine.AI;
+using SpaceTradeEngine.Gameplay;
 
 namespace SpaceTradeEngine.Core
 {
@@ -67,6 +68,11 @@ namespace SpaceTradeEngine.Core
         private World.Galaxy _galaxy;
         private UI.ContractPanel _contractPanel;
         private UI.CargoPanel _cargoPanel;
+        
+        // Sprint 2 systems - Factions V1 + Events
+        private Gameplay.FactionManager _factionManager;
+        private Gameplay.EventManager _eventManager;
+        private UI.FactionPanel _factionPanel;
         
         // Campaign and player systems
         private CampaignManager _campaignManager;
@@ -307,9 +313,6 @@ namespace SpaceTradeEngine.Core
             // Toggle debug mode
             if (_inputManager.IsKeyPressed(Keys.F12))
                 DebugMode = !DebugMode;
-            // F3 - toggle debug info
-            if (_inputManager.IsKeyPressed(Keys.F3))
-                DebugMode = !DebugMode;
             // F4 - toggle QuadTree visualization
             if (_inputManager.IsKeyPressed(Keys.F4))
                 _spatialSystem?.ToggleDebugVisualization();
@@ -334,8 +337,7 @@ namespace SpaceTradeEngine.Core
             // Quick demo helpers (varios eliminados por falta de sistemas)
             // if (_inputManager.IsKeyPressed(Keys.F1)) SpawnFactionAIDemo();  // ELIMINADO: usa _factionAISystem
             if (_inputManager.IsKeyPressed(Keys.F2)) TestContractWorkflow();  // Sprint 1: Test contract acceptance/completion
-            if (_inputManager.IsKeyPressed(Keys.F3)) SpawnMilitaryRankDemo();
-            if (_inputManager.IsKeyPressed(Keys.F4)) SpawnDynamicEventDemo();
+            if (_inputManager.IsKeyPressed(Keys.F3)) TestFactionWorkflow();   // Sprint 2: Test faction events and reputation
             if (_inputManager.IsKeyPressed(Keys.F7)) PrintMemoryArenaStats();
             if (_inputManager.IsKeyPressed(Keys.F8)) ArmEntitiesWithWeapons();
             if (_inputManager.IsKeyPressed(Keys.F9)) SpawnDemoDuel();
@@ -555,6 +557,10 @@ namespace SpaceTradeEngine.Core
             // Update Sprint 1 systems
             _marketManager?.UpdatePrices(deltaTime);
             _contractSystem?.Update(deltaTime);
+            
+            // Update Sprint 2 systems
+            _factionManager?.Update(new GameTime(TimeSpan.Zero, TimeSpan.FromSeconds(deltaTime)));
+            _eventManager?.Update(new GameTime(TimeSpan.Zero, TimeSpan.FromSeconds(deltaTime)));
             
             // Check contract completion based on player proximity to stations
             CheckContractProximityCompletion();
@@ -1074,6 +1080,12 @@ namespace SpaceTradeEngine.Core
             _contractSystem = new ContractSystem(_marketManager);
             _contractSystem.SetEntityManager(_entityManager);
             // Note: ContractSystem and PathfindingSystem are utility classes, not ECS systems
+            
+            // Sprint 2: Faction system
+            _factionManager = new Gameplay.FactionManager(_entityManager);
+            
+            // Sprint 2: Event system
+            _eventManager = new Gameplay.EventManager(_entityManager, _marketManager, _factionManager);
 
             // Player input system for ship control
             _playerInputSystem = new PlayerInputSystem(_inputManager, _renderingSystem);
@@ -1081,6 +1093,7 @@ namespace SpaceTradeEngine.Core
 
             // Campaign manager for story and progression (don't add HUD yet, UIManager not initialized)
             _campaignManager = new CampaignManager(_entityManager);
+            _campaignManager.SetFactionManager(_factionManager);
         }
 
         private void OnEntitiesCollided(Entity a, Entity b)
@@ -1377,6 +1390,13 @@ namespace SpaceTradeEngine.Core
             _uiManager?.Add(_contractPanel);
             _uiManager?.Add(_cargoPanel);
             Console.WriteLine($"✓ Sprint 1 UI panels added (Contract + Cargo)");
+            
+            // Initialize Sprint 2 UI panels
+            _factionPanel = new UI.FactionPanel(_factionManager, _eventManager);
+            if (_campaignManager?.PlayerShip != null)
+                _factionPanel.SetPlayerShip(_campaignManager.PlayerShip);
+            _uiManager?.Add(_factionPanel);
+            Console.WriteLine($"✓ Sprint 2 UI panels added (Faction)");
 
             Console.WriteLine("═══ Sprint 1 Economy Ready ═══\n");
         }
@@ -1811,6 +1831,120 @@ namespace SpaceTradeEngine.Core
 
             Console.WriteLine("═══ TEST COMPLETE ═══\n");
             Console.WriteLine("TIP: Press F2 again to test another contract");
+        }
+
+        /// <summary>
+        /// Sprint 2: Test faction relationships, events, and reputation.
+        /// Hotkey: F3
+        /// </summary>
+        private void TestFactionWorkflow()
+        {
+            if (_campaignManager?.PlayerShip == null || _factionManager == null || _eventManager == null)
+            {
+                Console.WriteLine("[Test] Cannot test: campaign not started");
+                return;
+            }
+
+            Console.WriteLine("\n═══ TESTING FACTION WORKFLOW ═══");
+
+            // Test 1: Show current player reputation
+            var reputation = _campaignManager.PlayerShip.GetComponent<ReputationComponent>();
+            if (reputation != null)
+            {
+                Console.WriteLine("\n[Test] Current Player Reputation:");
+                foreach (var faction in _factionManager.GetAllFactions())
+                {
+                    var factionComp = faction.GetComponent<FactionComponent>();
+                    if (factionComp != null)
+                    {
+                        float rep = reputation.GetReputation(factionComp.FactionId);
+                        string standing = reputation.GetStanding(factionComp.FactionId);
+                        Console.WriteLine($"  {factionComp.FactionName}: {rep:F1} ({standing})");
+                    }
+                }
+            }
+
+            // Test 2: Show faction relations
+            Console.WriteLine("\n[Test] Faction Relations:");
+            var relations = _factionManager.GetAllRelations().ToList();
+            foreach (var relation in relations.Take(5))
+            {
+                string treaty = relation.Treaty != TreatyType.None ? $" [{relation.Treaty}]" : "";
+                Console.WriteLine($"  {relation.FactionA} <-> {relation.FactionB}: {relation.GetAttitude()} ({relation.Attitude:F0}){treaty}");
+            }
+
+            // Test 3: Trigger a random event
+            Console.WriteLine("\n[Test] Triggering test event...");
+            var stations = _campaignManager.GetStations();
+            if (stations.Count > 0)
+            {
+                var randomStation = stations[new Random().Next(stations.Count)];
+                var stationFaction = randomStation.GetComponent<FactionComponent>();
+                
+                // Trigger embargo event between two factions
+                var allFactions = _factionManager.GetAllFactions().ToList();
+                if (allFactions.Count >= 2 && stationFaction != null)
+                {
+                    var factionA = allFactions[0].GetComponent<FactionComponent>()?.FactionId;
+                    var factionB = allFactions[1].GetComponent<FactionComponent>()?.FactionId;
+                    
+                    if (factionA != null && factionB != null)
+                    {
+                        var embargoEvent = _eventManager.TriggerEvent(
+                            Gameplay.GameEventType.Embargo,
+                            magnitude: 1.0f,
+                            factionA: factionA,
+                            factionB: factionB
+                        );
+                        Console.WriteLine($"  Event triggered: {embargoEvent.Title}");
+                        Console.WriteLine($"  Description: {embargoEvent.Description}");
+                        
+                        // Check if embargo affected relations
+                        var updatedRelation = _factionManager.GetRelation(factionA, factionB);
+                        if (updatedRelation != null)
+                        {
+                            Console.WriteLine($"  Relation now: {updatedRelation.GetAttitude()} with treaty: {updatedRelation.Treaty}");
+                        }
+                    }
+                }
+
+                // Trigger shortage event at a station
+                if (_marketManager != null)
+                {
+                    var market = _marketManager.GetMarket(randomStation.Id);
+                    if (market != null && market.Goods.Count > 0)
+                    {
+                        var wareId = market.Goods.Keys.First();
+                        var shortageEvent = _eventManager.TriggerEvent(
+                            Gameplay.GameEventType.Shortage,
+                            magnitude: 1.5f,
+                            stationId: randomStation.Id,
+                            wareId: wareId
+                        );
+                        Console.WriteLine($"  Event triggered: {shortageEvent.Title}");
+                        Console.WriteLine($"  Description: {shortageEvent.Description}");
+                    }
+                }
+            }
+
+            // Test 4: Complete a contract to gain reputation
+            var activeContracts = _contractSystem?.GetActiveContracts();
+            if (activeContracts != null && activeContracts.Count > 0)
+            {
+                Console.WriteLine("\n[Test] You have active contracts - complete them to gain reputation!");
+                Console.WriteLine($"  Active contracts: {activeContracts.Count}");
+            }
+            else
+            {
+                Console.WriteLine("\n[Test] No active contracts. Press F2 to test contract workflow first.");
+            }
+
+            // Toggle faction panel
+            _factionPanel?.Toggle();
+            Console.WriteLine($"\n[Test] Faction panel toggled: {(_factionPanel?.IsVisible == true ? "VISIBLE" : "HIDDEN")}");
+
+            Console.WriteLine("═══ TEST COMPLETE ═══\n");
+            Console.WriteLine("TIP: Press F3 again to toggle faction panel and trigger more events");
         }
     }
 }

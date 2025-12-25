@@ -150,17 +150,72 @@ namespace SpaceTradeEngine.ECS.Components
     }
 
     /// <summary>
-    /// Faction component - identifies which faction an entity belongs to
+    /// Faction component - identifies which faction an entity belongs to.
+    /// Sprint 2: Extended with territory, power indicators, and faction color.
     /// </summary>
     public class FactionComponent : Component
     {
         public string FactionId { get; set; } = string.Empty;
         public string FactionName { get; set; } = string.Empty;
+        public Color FactionColor { get; set; } = Color.Gray;
         
-        public FactionComponent(string factionId, string? factionName = null)
+        /// <summary>
+        /// Territory control: sectors owned by this faction.
+        /// </summary>
+        public List<string> ControlledSectors { get; set; } = new List<string>();
+        
+        /// <summary>
+        /// Military strength indicator (0-100).
+        /// </summary>
+        public float MilitaryPower { get; set; } = 50f;
+        
+        /// <summary>
+        /// Economic strength indicator (0-100).
+        /// </summary>
+        public float EconomicPower { get; set; } = 50f;
+        
+        public FactionComponent(string factionId, string? factionName = null, Color? color = null)
         {
             FactionId = factionId;
             FactionName = factionName ?? factionId;
+            FactionColor = color ?? Color.Gray;
+        }
+    }
+
+    /// <summary>
+    /// Tracks player reputation with factions (-100 to +100).
+    /// Affects contract availability, pricing, and faction behavior.
+    /// Sprint 2: Reputation system for diplomatic gameplay.
+    /// </summary>
+    public class ReputationComponent : Component
+    {
+        public Dictionary<string, float> Reputations { get; set; } = new Dictionary<string, float>();
+
+        public void SetReputation(string factionId, float value)
+        {
+            value = Math.Clamp(value, -100f, 100f);
+            Reputations[factionId] = value;
+        }
+
+        public float GetReputation(string factionId)
+        {
+            return Reputations.TryGetValue(factionId, out var rep) ? rep : 0f;
+        }
+
+        public void ModifyReputation(string factionId, float delta)
+        {
+            float current = GetReputation(factionId);
+            SetReputation(factionId, current + delta);
+        }
+
+        public string GetStanding(string factionId)
+        {
+            float rep = GetReputation(factionId);
+            if (rep >= 75) return "Allied";
+            if (rep >= 25) return "Friendly";
+            if (rep >= -25) return "Neutral";
+            if (rep >= -75) return "Unfriendly";
+            return "Hostile";
         }
     }
 

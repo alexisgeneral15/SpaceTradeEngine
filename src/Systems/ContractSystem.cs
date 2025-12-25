@@ -148,6 +148,24 @@ namespace SpaceTradeEngine.Systems
             cargo.Credits += contract.Reward;
             Console.WriteLine($"[Contract] Completed! Paid {contract.Reward:F0} credits. Total: {cargo.Credits:F0}");
 
+            // Sprint 2: Reputation reward for completing contract
+            var reputation = entity.GetComponent<ReputationComponent>();
+            if (reputation != null && _entityManager != null)
+            {
+                // Find destination station faction
+                var destStation = _entityManager.GetEntity(contract.DestinationStationId);
+                if (destStation != null)
+                {
+                    var faction = destStation.GetComponent<FactionComponent>();
+                    if (faction != null)
+                    {
+                        float repGain = 5f + (contract.Reward / 1000f); // Base 5 + reward-based bonus
+                        reputation.ModifyReputation(faction.FactionId, repGain);
+                        Console.WriteLine($"[Reputation] +{repGain:F1} with {faction.FactionName} (now {reputation.GetReputation(faction.FactionId):F1} - {reputation.GetStanding(faction.FactionId)})");
+                    }
+                }
+            }
+
             contract.Status = ContractStatus.Completed;
             contract.CompletionTime = DateTime.Now;
             return true;
