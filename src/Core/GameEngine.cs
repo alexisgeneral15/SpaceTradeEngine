@@ -60,6 +60,14 @@ namespace SpaceTradeEngine.Core
         private CombatSystem _combatSystem;
         // ELIMINADO: _economyPanel
         
+        // Sprint 1 systems - Economy V1 + Navigation
+        private Economy.MarketManager _marketManager;
+        private ContractSystem _contractSystem;
+        private PathfindingSystem _pathfindingSystem;
+        private World.Galaxy _galaxy;
+        private UI.ContractPanel _contractPanel;
+        private UI.CargoPanel _cargoPanel;
+        
         // Campaign and player systems
         private CampaignManager _campaignManager;
         private PlayerInputSystem _playerInputSystem;
@@ -544,6 +552,10 @@ namespace SpaceTradeEngine.Core
             // LÓGICA DE JUEGO con delta variable suavizado
             _entityManager.Update(deltaTime);
             
+            // Update Sprint 1 systems
+            _marketManager?.UpdatePrices(deltaTime);
+            _contractSystem?.Update(deltaTime);
+            
             // Update rendering system camera
             _renderingSystem.UpdateCamera(_inputManager);
 
@@ -1025,6 +1037,18 @@ namespace SpaceTradeEngine.Core
             // Economy panel UI (disabled in skeleton mode)
             // _economyPanel = new UI.EconomyPanel(_stationSystem, _traderAISystem, _shipyardSystem);
 
+            // Sprint 1: Economy V1 + Navigation systems
+            _marketManager = new Economy.MarketManager();
+            _galaxy = new World.Galaxy
+            {
+                Id = "main_galaxy",
+                Name = "Main Galaxy",
+                Bounds = new Rectangle(0, 0, 10000, 10000)
+            };
+            _pathfindingSystem = new PathfindingSystem();
+            _contractSystem = new ContractSystem(_marketManager);
+            // Note: ContractSystem and PathfindingSystem are utility classes, not ECS systems
+
             // Player input system for ship control
             _playerInputSystem = new PlayerInputSystem(_inputManager, _renderingSystem);
             _entityManager.RegisterSystem(_playerInputSystem);
@@ -1152,11 +1176,14 @@ namespace SpaceTradeEngine.Core
             _campaignManager?.StartNewCampaign();
             _stateManager.ChangeState(GameState.Playing);
 
+            // Initialize Sprint 1 economy: create sample sectors and stations for contracts
+            InitializeSprint1Economy();
+
             // Auto-follow player ship with camera
             if (_campaignManager?.PlayerShip != null)
             {
                 _cameraFollowSystem?.SetTarget(_campaignManager.PlayerShip);
-                Console.WriteLine("\u2713 Camera following player ship");
+                Console.WriteLine("✓ Camera following player ship");
             }
 
             Console.WriteLine("\n[CAMPAIGN STARTED]");
@@ -1166,6 +1193,166 @@ namespace SpaceTradeEngine.Core
             Console.WriteLine("  SPACE/LMB - Fire weapon");
             Console.WriteLine("  F - Follow selected ship with camera");
             Console.WriteLine("  Click/Drag - Select entities\n");
+        }
+
+        private void InitializeSprint1Economy()
+        {
+            if (_marketManager == null || _contractSystem == null || _galaxy == null)
+                return;
+
+            Console.WriteLine("\n═══ Initializing Sprint 1 Economy ═══");
+
+            // Create sample sectors with gates
+            var sector1 = new World.Sector
+            {
+                Id = "sector_alpha",
+                Name = "Alpha Sector",
+                Coordinates = new World.Vector2Int(0, 0),
+                CenterPosition = new Vector2(1000, 1000)
+            };
+            var sector2 = new World.Sector
+            {
+                Id = "sector_beta",
+                Name = "Beta Sector",
+                Coordinates = new World.Vector2Int(1, 0),
+                CenterPosition = new Vector2(3000, 1000)
+            };
+
+            // Connect sectors with gates
+            var gate1 = new World.Gate
+            {
+                Id = "gate_alpha_beta",
+                Name = "Alpha-Beta Gate",
+                SourceSector = new World.Vector2Int(0, 0),
+                DestinationSector = new World.Vector2Int(1, 0),
+                Position = new Vector2(2000, 1000),
+                IsActive = true
+            };
+            sector1.AddGate(gate1);
+
+            var gate2 = new World.Gate
+            {
+                Id = "gate_beta_alpha",
+                Name = "Beta-Alpha Gate",
+                SourceSector = new World.Vector2Int(1, 0),
+                DestinationSector = new World.Vector2Int(0, 0),
+                Position = new Vector2(2000, 1000),
+                IsActive = true
+            };
+            sector2.AddGate(gate2);
+
+            _galaxy.AddSector(new World.Vector2Int(0, 0), sector1);
+            _galaxy.AddSector(new World.Vector2Int(1, 0), sector2);
+
+            Console.WriteLine($"✓ Created 2 sectors with jump gates");
+
+            // Register stations with markets (use existing campaign stations)
+            var stations = _campaignManager?.GetStations();
+            if (stations != null && stations.Count >= 2)
+            {
+                // First, register ware templates
+                _marketManager.RegisterWareTemplate(new Economy.WareTemplate 
+                { 
+                    Id = "iron_ore", 
+                    Name = "Iron Ore", 
+                    Type = "resource", 
+                    BasePrice = 50f, 
+                    Volume = 1f 
+                });
+                _marketManager.RegisterWareTemplate(new Economy.WareTemplate 
+                { 
+                    Id = "food_rations", 
+                    Name = "Food Rations", 
+                    Type = "consumable", 
+                    BasePrice = 20f, 
+                    Volume = 1f 
+                });
+                _marketManager.RegisterWareTemplate(new Economy.WareTemplate 
+                { 
+                    Id = "fuel_cells", 
+                    Name = "Fuel Cells", 
+                    Type = "fuel", 
+                    BasePrice = 75f, 
+                    Volume = 1f 
+                });
+
+                for (int i = 0; i < Math.Min(stations.Count, 2); i++)
+                {
+                    var station = stations[i];
+                    var stationId = station.Id;
+                    
+                    // Create market for each station
+                    var market = new Economy.StationMarket { StationId = stationId };
+                    market.AddGood("iron_ore", new Economy.MarketGood 
+                    { 
+                        WareId = "iron_ore", 
+                        StockLevel = 100, 
+                        MaxStock = 200, 
+                        BasePrice = 50f, 
+                        CurrentPrice = 50f,
+                        ConsumptionRate = 2f,
+                        ProductionRate = 5f
+                    });
+                    market.AddGood("food_rations", new Economy.MarketGood 
+                    { 
+                        WareId = "food_rations", 
+                        StockLevel = 50, 
+                        MaxStock = 150, 
+                        BasePrice = 20f, 
+                        CurrentPrice = 20f,
+                        ConsumptionRate = 3f,
+                        ProductionRate = 1f
+                    });
+                    market.AddGood("fuel_cells", new Economy.MarketGood 
+                    { 
+                        WareId = "fuel_cells", 
+                        StockLevel = 80, 
+                        MaxStock = 180, 
+                        BasePrice = 75f, 
+                        CurrentPrice = 75f,
+                        ConsumptionRate = 1f,
+                        ProductionRate = 4f
+                    });
+                    
+                    _marketManager.RegisterStationMarket(stationId, market);
+                    
+                    // Add station to sector
+                    if (i == 0)
+                        sector1.AddStation(stationId);
+                    else
+                        sector2.AddStation(stationId);
+                }
+
+                Console.WriteLine($"✓ Registered {Math.Min(stations.Count, 2)} stations with markets");
+
+                // Generate initial contracts
+                if (stations.Count >= 2)
+                {
+                    var station1Id = stations[0].Id;
+                    var station2Id = stations[1].Id;
+                    
+                    _contractSystem.GenerateRandomContracts(5);
+                    Console.WriteLine($"✓ Generated 5 random delivery contracts");
+                }
+            }
+
+            // Initialize Sprint 1 UI panels
+            var vp = GraphicsDevice.Viewport;
+            _contractPanel = new UI.ContractPanel(
+                new Rectangle(10, 150, 350, 300),
+                _contractSystem,
+                _campaignManager?.PlayerShip
+            );
+            _cargoPanel = new UI.CargoPanel(
+                new Rectangle(10, 460, 280, 250),
+                _campaignManager?.PlayerShip
+            );
+            
+            _uiManager?.Add(_contractPanel);
+            _uiManager?.Add(_cargoPanel);
+            Console.WriteLine($"✓ Sprint 1 UI panels added (Contract + Cargo)");
+
+            Console.WriteLine("═══ Sprint 1 Economy Ready ═══\n");
         }
 
         private void SpawnFleetDemo()

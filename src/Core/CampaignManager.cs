@@ -236,6 +236,11 @@ namespace SpaceTradeEngine.Core
             _stations.Clear();
             Console.WriteLine("Campaign ended");
         }
+
+        public List<Entity> GetStations()
+        {
+            return _stations;
+        }
     }
 
     /// <summary>
