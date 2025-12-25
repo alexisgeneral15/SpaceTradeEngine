@@ -1,0 +1,10 @@
+cd "c:\Users\alexi\Downloads\UnendingGalaxyDeluxe\SpaceTradeEngine"
+
+# Replace 'alexisgeneral15' with your actual GitHub username if different
+git remote add origin https://github.com/alexisgeneral15/SpaceTradeEngine.git
+
+# Rename branch to main (GitHub's default)
+git branch -M main
+
+# Push everything
+git push -u origin main
