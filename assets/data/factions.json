@@ -1,0 +1,127 @@
+{
+  "factions": [
+    {
+      "id": "human_federation",
+      "name": "Human Federation",
+      "description": "United government of human colonies",
+      "color": "#4080FF",
+      "defaultStanding": 0,
+      "traits": ["diplomatic", "trading"]
+    },
+    {
+      "id": "pirates",
+      "name": "Pirate Clans",
+      "description": "Loosely organized criminal factions",
+      "color": "#FF4040",
+      "defaultStanding": -50,
+      "traits": ["hostile", "aggressive"]
+    },
+    {
+      "id": "traders",
+      "name": "Merchants Guild",
+      "description": "Independent trading corporations",
+      "color": "#FFD700",
+      "defaultStanding": 25,
+      "traits": ["peaceful", "trading"]
+    },
+    {
+      "id": "military",
+      "name": "Defense Force",
+      "description": "Military peacekeeping fleet",
+      "color": "#40FF40",
+      "defaultStanding": 0,
+      "traits": ["lawful", "protective"]
+    },
+    {
+      "id": "aliens",
+      "name": "Alien Collective",
+      "description": "Non-human species alliance",
+      "color": "#FF40FF",
+      "defaultStanding": -10,
+      "traits": ["mysterious", "advanced"]
+    },
+    {
+      "id": "rebels",
+      "name": "Rebel Alliance",
+      "description": "Freedom fighters against tyranny",
+      "color": "#FF8040",
+      "defaultStanding": -20,
+      "traits": ["rebellious", "determined"]
+    }
+  ],
+  "initialRelationships": [
+    {
+      "faction1": "human_federation",
+      "faction2": "traders",
+      "standing": 50,
+      "notes": "Strong trade partnership"
+    },
+    {
+      "faction1": "human_federation",
+      "faction2": "military",
+      "standing": 75,
+      "notes": "Alliance for defense"
+    },
+    {
+      "faction1": "human_federation",
+      "faction2": "pirates",
+      "standing": -80,
+      "atWar": true,
+      "notes": "Active conflict"
+    },
+    {
+      "faction1": "human_federation",
+      "faction2": "aliens",
+      "standing": -20,
+      "notes": "Cautious relations"
+    },
+    {
+      "faction1": "traders",
+      "faction2": "pirates",
+      "standing": -60,
+      "notes": "Pirates raid trade routes"
+    },
+    {
+      "faction1": "traders",
+      "faction2": "military",
+      "standing": 40,
+      "notes": "Military protects traders"
+    },
+    {
+      "faction1": "military",
+      "faction2": "pirates",
+      "standing": -90,
+      "atWar": true,
+      "notes": "Ongoing suppression campaign"
+    },
+    {
+      "faction1": "rebels",
+      "faction2": "human_federation",
+      "standing": -70,
+      "atWar": true,
+      "notes": "Revolutionary conflict"
+    },
+    {
+      "faction1": "rebels",
+      "faction2": "pirates",
+      "standing": 20,
+      "notes": "Convenient alliance"
+    },
+    {
+      "faction1": "aliens",
+      "faction2": "traders",
+      "standing": 30,
+      "notes": "Occasional trade"
+    }
+  ],
+  "diplomaticModifiers": {
+    "tradeAgreement": 10,
+    "militaryCooperation": 15,
+    "sharedEnemy": 20,
+    "territorialDispute": -30,
+    "attackedShips": -25,
+    "successfulTrade": 5,
+    "missionCompleted": 10,
+    "betrayal": -50
+  }
+}

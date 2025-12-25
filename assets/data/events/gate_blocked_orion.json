@@ -1,0 +1,7 @@
+{
+  "type": "gate_blocked",
+  "gate_id": "gate_orion_alpha",
+  "sector_id": "orion_sector",
+  "reason": "Debris field from recent battle",
+  "duration_minutes": 60
+}

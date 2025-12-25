@@ -1,0 +1,18 @@
+{
+  "id": "human_federation",
+  "name": "Human Federation",
+  "alignment": "neutral",
+  "description": "The dominant human faction, democratic and expansionist",
+  "government_type": "democratic",
+  "colors": {
+    "primary": "#0066FF",
+    "secondary": "#00CCFF"
+  },
+  "territories": ["sol_system", "alpha_centauri"],
+  "technologies": ["fusion_engines", "shield_generators", "plasma_weapons"],
+  "relationships": {
+    "drath_empire": -50,
+    "sirak_collective": 25,
+    "isa_alliance": 50
+  }
+}

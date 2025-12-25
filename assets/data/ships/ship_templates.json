@@ -1,0 +1,112 @@
+[
+  {
+    "id": "fighter_class_1",
+    "name": "Hornet Fighter",
+    "type": "fighter",
+    "faction": "human_federation",
+    "hull": {
+      "hp": 150,
+      "armor": 5
+    },
+    "engines": {
+      "max_speed": 250,
+      "acceleration": 100
+    },
+    "weapons": [
+      {
+        "slot": 0,
+        "weapon_id": "plasma_cannon",
+        "count": 2
+      }
+    ],
+    "shields": {
+      "max_strength": 100,
+      "recharge_rate": 5
+    },
+    "cargo": {
+      "capacity": 50,
+      "slots": 10
+    },
+    "crew": {
+      "max_crew": 5,
+      "minimum": 1
+    },
+    "cost": 150000,
+    "description": "Fast and agile fighter class vessel"
+  },
+  {
+    "id": "trader_1",
+    "name": "Merchant Hauler",
+    "type": "trader",
+    "faction": "human_federation",
+    "hull": {
+      "hp": 300,
+      "armor": 8
+    },
+    "engines": {
+      "max_speed": 150,
+      "acceleration": 50
+    },
+    "weapons": [
+      {
+        "slot": 0,
+        "weapon_id": "basic_laser",
+        "count": 2
+      }
+    ],
+    "shields": {
+      "max_strength": 150,
+      "recharge_rate": 3
+    },
+    "cargo": {
+      "capacity": 500,
+      "slots": 50
+    },
+    "crew": {
+      "max_crew": 20,
+      "minimum": 5
+    },
+    "cost": 250000,
+    "description": "Large cargo capacity merchant vessel"
+  },
+  {
+    "id": "capital_1",
+    "name": "Cruiser",
+    "type": "capital",
+    "faction": "human_federation",
+    "hull": {
+      "hp": 800,
+      "armor": 15
+    },
+    "engines": {
+      "max_speed": 100,
+      "acceleration": 30
+    },
+    "weapons": [
+      {
+        "slot": 0,
+        "weapon_id": "plasma_cannon",
+        "count": 4
+      },
+      {
+        "slot": 1,
+        "weapon_id": "missile_launcher",
+        "count": 2
+      }
+    ],
+    "shields": {
+      "max_strength": 400,
+      "recharge_rate": 10
+    },
+    "cargo": {
+      "capacity": 300,
+      "slots": 30
+    },
+    "crew": {
+      "max_crew": 100,
+      "minimum": 30
+    },
+    "cost": 800000,
+    "description": "Heavily armed capital class warship"
+  }
+]

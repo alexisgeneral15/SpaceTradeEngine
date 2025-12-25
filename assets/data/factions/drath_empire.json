@@ -1,0 +1,18 @@
+{
+  "id": "drath_empire",
+  "name": "Drath Empire",
+  "alignment": "evil",
+  "description": "An authoritarian militaristic empire, expansionist and hostile",
+  "government_type": "autocracy",
+  "colors": {
+    "primary": "#FF0000",
+    "secondary": "#8B0000"
+  },
+  "territories": ["drath_sector", "void_regions"],
+  "technologies": ["advanced_weapons", "stealth_tech", "dark_matter_drives"],
+  "relationships": {
+    "human_federation": -50,
+    "sirak_collective": -75,
+    "isa_alliance": -60
+  }
+}

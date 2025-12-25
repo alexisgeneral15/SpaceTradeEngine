@@ -1,0 +1,8 @@
+{
+  "id": "hull_plating",
+  "name": "Hull Plating",
+  "type": "component",
+  "base_price": 350.0,
+  "volume": 3.0,
+  "illegal_factions": []
+}

@@ -1,0 +1,6 @@
+{
+  "type": "embargo",
+  "faction_a": "human_federation",
+  "faction_b": "sirak_empire",
+  "duration_minutes": 240
+}

@@ -1,0 +1,107 @@
+{
+  "recipes": [
+    {
+      "id": "steel_production",
+      "name": "Steel Production",
+      "description": "Refine ore into steel",
+      "inputWares": {
+        "ore": 10
+      },
+      "outputWareId": "steel",
+      "outputQuantity": 5,
+      "productionTime": 30.0,
+      "requiredFactoryType": "Refinery"
+    },
+    {
+      "id": "component_assembly",
+      "name": "Component Assembly",
+      "description": "Assemble components from steel",
+      "inputWares": {
+        "steel": 5,
+        "electronics": 2
+      },
+      "outputWareId": "components",
+      "outputQuantity": 3,
+      "productionTime": 45.0,
+      "requiredFactoryType": "Factory"
+    },
+    {
+      "id": "weapon_manufacture",
+      "name": "Weapon Manufacturing",
+      "description": "Produce weapons from components",
+      "inputWares": {
+        "components": 3,
+        "steel": 2
+      },
+      "outputWareId": "weapons",
+      "outputQuantity": 1,
+      "productionTime": 60.0,
+      "requiredFactoryType": "Armory"
+    },
+    {
+      "id": "fuel_refinement",
+      "name": "Fuel Refinement",
+      "description": "Refine gas into fuel",
+      "inputWares": {
+        "gas": 20
+      },
+      "outputWareId": "fuel",
+      "outputQuantity": 10,
+      "productionTime": 25.0,
+      "requiredFactoryType": "Refinery"
+    },
+    {
+      "id": "ship_construction",
+      "name": "Ship Construction",
+      "description": "Build a new ship",
+      "inputWares": {
+        "steel": 50,
+        "components": 20,
+        "fuel": 10
+      },
+      "outputWareId": "ship_hull",
+      "outputQuantity": 1,
+      "productionTime": 300.0,
+      "requiredFactoryType": "Shipyard"
+    },
+    {
+      "id": "electronics_production",
+      "name": "Electronics Production",
+      "description": "Manufacture electronics",
+      "inputWares": {
+        "ore": 5,
+        "ice": 3
+      },
+      "outputWareId": "electronics",
+      "outputQuantity": 5,
+      "productionTime": 40.0,
+      "requiredFactoryType": "Factory"
+    },
+    {
+      "id": "medical_supplies",
+      "name": "Medical Supplies",
+      "description": "Produce medical supplies",
+      "inputWares": {
+        "ice": 10,
+        "electronics": 1
+      },
+      "outputWareId": "medical",
+      "outputQuantity": 15,
+      "productionTime": 35.0,
+      "requiredFactoryType": "Factory"
+    },
+    {
+      "id": "ammunition",
+      "name": "Ammunition Production",
+      "description": "Manufacture ammunition",
+      "inputWares": {
+        "steel": 3,
+        "components": 1
+      },
+      "outputWareId": "ammo",
+      "outputQuantity": 50,
+      "productionTime": 20.0,
+      "requiredFactoryType": "Armory"
+    }
+  ]
+}

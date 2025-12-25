@@ -1,0 +1,85 @@
+{
+  "missionTemplates": [
+    {
+      "id": "escort_convoy",
+      "title": "Escort Convoy",
+      "description": "Protect the trading convoy from pirates",
+      "objectives": [
+        {
+          "type": "Escort",
+          "description": "Escort convoy ship to destination",
+          "requiredCount": 1
+        }
+      ],
+      "rewardCredits": 5000,
+      "timeLimit": 300,
+      "issuerFaction": "traders",
+      "difficulty": "medium"
+    },
+    {
+      "id": "destroy_pirates",
+      "title": "Clear Pirate Nest",
+      "description": "Eliminate pirate ships in the sector",
+      "objectives": [
+        {
+          "type": "DestroyTarget",
+          "description": "Destroy 5 pirate ships",
+          "requiredCount": 5
+        }
+      ],
+      "rewardCredits": 8000,
+      "timeLimit": 0,
+      "issuerFaction": "military",
+      "difficulty": "hard"
+    },
+    {
+      "id": "deliver_supplies",
+      "title": "Supply Run",
+      "description": "Deliver medical supplies to the station",
+      "objectives": [
+        {
+          "type": "DeliverCargo",
+          "description": "Deliver 50 medical supplies",
+          "requiredCount": 50,
+          "requiredWareId": "medical"
+        }
+      ],
+      "rewardCredits": 3000,
+      "timeLimit": 180,
+      "issuerFaction": "traders",
+      "difficulty": "easy"
+    },
+    {
+      "id": "scout_sector",
+      "title": "Reconnaissance",
+      "description": "Scout the unknown sector and report back",
+      "objectives": [
+        {
+          "type": "TravelTo",
+          "description": "Travel to coordinates",
+          "requiredCount": 1
+        }
+      ],
+      "rewardCredits": 2000,
+      "timeLimit": 120,
+      "issuerFaction": "military",
+      "difficulty": "easy"
+    },
+    {
+      "id": "defend_station",
+      "title": "Station Defense",
+      "description": "Defend the station from incoming attack",
+      "objectives": [
+        {
+          "type": "DefendLocation",
+          "description": "Protect station for 5 minutes",
+          "requiredCount": 1
+        }
+      ],
+      "rewardCredits": 10000,
+      "timeLimit": 300,
+      "issuerFaction": "military",
+      "difficulty": "hard"
+    }
+  ]
+}

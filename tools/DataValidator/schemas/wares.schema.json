@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetradeengine/schemas/wares.schema.json",
+  "title": "WareTemplate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "type", "base_price", "volume"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "type": { "type": "string", "enum": ["commodity", "component", "illegal", "luxury"] },
+    "base_price": { "type": "number", "minimum": 0 },
+    "volume": { "type": "number", "exclusiveMinimum": 0 },
+    "illegal_factions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "default": []
+    }
+  }
+}

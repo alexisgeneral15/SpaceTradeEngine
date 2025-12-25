@@ -1,0 +1,8 @@
+{
+  "id": "medical_supplies",
+  "name": "Medical Supplies",
+  "type": "commodity",
+  "base_price": 120.0,
+  "volume": 1.0,
+  "illegal_factions": []
+}

@@ -1,0 +1,128 @@
+{
+  "aiPresets": [
+    {
+      "id": "trader_passive",
+      "name": "Passive Trader",
+      "defaultBehavior": "Trade",
+      "aggressiveness": 0.1,
+      "cruiseSpeed": 180.0,
+      "detectionRange": 800.0,
+      "wanderRange": 300.0,
+      "behaviors": {
+        "whenAttacked": "Flee",
+        "whenIdle": "Trade",
+        "whenLowHealth": "Flee"
+      }
+    },
+    {
+      "id": "military_patrol",
+      "name": "Military Patrol",
+      "defaultBehavior": "Patrol",
+      "aggressiveness": 0.7,
+      "cruiseSpeed": 220.0,
+      "detectionRange": 1200.0,
+      "wanderRange": 0,
+      "behaviors": {
+        "whenEnemySighted": "Attack",
+        "whenAllyUnderAttack": "Escort",
+        "whenLowHealth": "Flee"
+      },
+      "patrolWaypoints": []
+    },
+    {
+      "id": "pirate_aggressive",
+      "name": "Aggressive Pirate",
+      "defaultBehavior": "Patrol",
+      "aggressiveness": 0.9,
+      "cruiseSpeed": 250.0,
+      "detectionRange": 1000.0,
+      "wanderRange": 500.0,
+      "behaviors": {
+        "whenTargetSighted": "Attack",
+        "whenWeakerTarget": "Attack",
+        "whenStrongerTarget": "Flee"
+      }
+    },
+    {
+      "id": "miner_worker",
+      "name": "Mining Ship",
+      "defaultBehavior": "Mine",
+      "aggressiveness": 0.0,
+      "cruiseSpeed": 150.0,
+      "detectionRange": 600.0,
+      "wanderRange": 200.0,
+      "behaviors": {
+        "whenAttacked": "Flee",
+        "whenCargoFull": "Trade",
+        "whenNoResources": "Idle"
+      }
+    },
+    {
+      "id": "escort_defender",
+      "name": "Escort Ship",
+      "defaultBehavior": "Escort",
+      "aggressiveness": 0.6,
+      "cruiseSpeed": 230.0,
+      "detectionRange": 1000.0,
+      "wanderRange": 0,
+      "escortRange": 400.0,
+      "behaviors": {
+        "whenEscortAttacked": "Attack",
+        "whenEscortDestroyed": "Flee",
+        "whenNoEscortTarget": "Patrol"
+      }
+    },
+    {
+      "id": "station_defense",
+      "name": "Station Defender",
+      "defaultBehavior": "Patrol",
+      "aggressiveness": 0.8,
+      "cruiseSpeed": 200.0,
+      "detectionRange": 1500.0,
+      "wanderRange": 0,
+      "behaviors": {
+        "whenEnemyInRange": "Attack",
+        "whenFarFromStation": "Patrol",
+        "maxDistanceFromStation": 2000
+      }
+    },
+    {
+      "id": "bounty_hunter",
+      "name": "Bounty Hunter",
+      "defaultBehavior": "Patrol",
+      "aggressiveness": 0.75,
+      "cruiseSpeed": 260.0,
+      "detectionRange": 1400.0,
+      "wanderRange": 800.0,
+      "behaviors": {
+        "targetPriority": "Wanted",
+        "whenTargetFound": "Attack",
+        "whenTargetDestroyed": "Patrol"
+      }
+    },
+    {
+      "id": "explorer_scout",
+      "name": "Explorer Scout",
+      "defaultBehavior": "Patrol",
+      "aggressiveness": 0.2,
+      "cruiseSpeed": 280.0,
+      "detectionRange": 1200.0,
+      "wanderRange": 1000.0,
+      "behaviors": {
+        "whenAttacked": "Flee",
+        "whenDiscovery": "Idle",
+        "avoidCombat": true
+      }
+    }
+  ],
+  "behaviorParameters": {
+    "fleeHealthThreshold": 0.3,
+    "pursuitRange": 1500.0,
+    "combatRange": 600.0,
+    "safeDistance": 2000.0,
+    "patrolSpeed": 150.0,
+    "combatSpeed": 200.0,
+    "fleeSpeed": 300.0,
+    "reactionTime": 0.5
+  }
+}

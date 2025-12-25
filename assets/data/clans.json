@@ -1,0 +1,209 @@
+{
+  "clans": [
+    {
+      "id": "human_federation_military",
+      "name": "Federal Military",
+      "parentFaction": "human_federation",
+      "parentClanId": null,
+      "description": "Main military force of Human Federation",
+      "maxStrength": 500,
+      "initialReputation": 30,
+      "traits": ["disciplined", "powerful", "organized"],
+      "roles": ["combat", "patrol", "defense"]
+    },
+    {
+      "id": "human_federation_traders",
+      "name": "Trade Consortium",
+      "parentFaction": "human_federation",
+      "parentClanId": null,
+      "description": "Commercial clan focused on trade routes",
+      "maxStrength": 300,
+      "initialReputation": 20,
+      "traits": ["merchant", "diplomatic", "wealthy"],
+      "roles": ["trade", "mining", "exploration"]
+    },
+    {
+      "id": "human_federation_explorers",
+      "name": "Explorer's Guild",
+      "parentFaction": "human_federation",
+      "parentClanId": null,
+      "description": "Scout and survey specialists",
+      "maxStrength": 200,
+      "initialReputation": 15,
+      "traits": ["adventurous", "knowledgeable", "agile"],
+      "roles": ["exploration", "scouting", "mapping"]
+    },
+    {
+      "id": "federal_military_strike_force",
+      "name": "Strike Force Alpha",
+      "parentFaction": "human_federation",
+      "parentClanId": "human_federation_military",
+      "description": "Elite strike team for special operations",
+      "maxStrength": 150,
+      "initialReputation": 40,
+      "traits": ["elite", "aggressive", "specialized"],
+      "roles": ["combat", "assassination", "raid"]
+    },
+    {
+      "id": "traders_smugglers",
+      "name": "Black Market Consortium",
+      "parentFaction": "traders",
+      "parentClanId": null,
+      "description": "Independent trading faction dealing in restricted goods",
+      "maxStrength": 250,
+      "initialReputation": -20,
+      "traits": ["cunning", "dangerous", "secretive"],
+      "roles": ["trade", "smuggling", "sabotage"]
+    },
+    {
+      "id": "military_enforcement",
+      "name": "Military Enforcement",
+      "parentFaction": "military",
+      "parentClanId": null,
+      "description": "Dedicated to maintaining military order",
+      "maxStrength": 450,
+      "initialReputation": 25,
+      "traits": ["strict", "organized", "professional"],
+      "roles": ["combat", "patrol", "blockade"]
+    },
+    {
+      "id": "pirate_corsairs",
+      "name": "Corsair Fleet",
+      "parentFaction": "pirates",
+      "parentClanId": null,
+      "description": "Aggressive pirate raiders",
+      "maxStrength": 350,
+      "initialReputation": -50,
+      "traits": ["ruthless", "aggressive", "cunning"],
+      "roles": ["combat", "raid", "theft"]
+    },
+    {
+      "id": "pirate_mercenaries",
+      "name": "Mercenary Company",
+      "parentFaction": "pirates",
+      "parentClanId": null,
+      "description": "Pirates who work for hire",
+      "maxStrength": 280,
+      "initialReputation": -30,
+      "traits": ["professional", "pragmatic", "dangerous"],
+      "roles": ["combat", "escort", "protection"]
+    },
+    {
+      "id": "aliens_collective",
+      "name": "Hive Collective",
+      "parentFaction": "aliens",
+      "parentClanId": null,
+      "description": "Non-human unified collective",
+      "maxStrength": 400,
+      "initialReputation": -10,
+      "traits": ["mysterious", "coordinated", "advanced"],
+      "roles": ["combat", "research", "expansion"]
+    },
+    {
+      "id": "rebels_freedom_fighters",
+      "name": "Freedom Fighters",
+      "parentFaction": "rebels",
+      "parentClanId": null,
+      "description": "Resistance against oppressive regimes",
+      "maxStrength": 200,
+      "initialReputation": 5,
+      "traits": ["determined", "passionate", "resilient"],
+      "roles": ["combat", "sabotage", "recruitment"]
+    }
+  ],
+  "clanRelationships": [
+    {
+      "clan1": "human_federation_military",
+      "clan2": "human_federation_traders",
+      "standing": 60,
+      "notes": "Military protects traders"
+    },
+    {
+      "clan1": "human_federation_military",
+      "clan2": "human_federation_explorers",
+      "standing": 40,
+      "notes": "Explorers provide intelligence"
+    },
+    {
+      "clan1": "human_federation_traders",
+      "clan2": "human_federation_explorers",
+      "standing": 75,
+      "notes": "Explorers find trade opportunities"
+    },
+    {
+      "clan1": "federal_military_strike_force",
+      "clan2": "human_federation_military",
+      "standing": 85,
+      "notes": "Same faction sub-clan, allied"
+    },
+    {
+      "clan1": "military_enforcement",
+      "clan2": "human_federation_military",
+      "standing": -70,
+      "notes": "Different faction, active conflict"
+    },
+    {
+      "clan1": "pirate_corsairs",
+      "clan2": "pirate_mercenaries",
+      "standing": 50,
+      "notes": "Both pirate clans, loose alliance"
+    },
+    {
+      "clan1": "traders_smugglers",
+      "clan2": "human_federation_traders",
+      "standing": -80,
+      "notes": "Competing trade interests, enemies"
+    },
+    {
+      "clan1": "pirate_corsairs",
+      "clan2": "human_federation_military",
+      "standing": -95,
+      "atWar": true,
+      "notes": "Constant warfare"
+    },
+    {
+      "clan1": "rebels_freedom_fighters",
+      "clan2": "military_enforcement",
+      "standing": -85,
+      "atWar": true,
+      "notes": "Revolutionary conflict"
+    },
+    {
+      "clan1": "aliens_collective",
+      "clan2": "human_federation_military",
+      "standing": -20,
+      "notes": "Cautious, occasional skirmishes"
+    }
+  ],
+  "clanDiplomaticModifiers": {
+    "supportedInWar": 25,
+    "sharedVictory": 20,
+    "jointMission": 15,
+    "tradeAgreement": 10,
+    "betrayal": -50,
+    "defeat": -15,
+    "blockadeRun": 12,
+    "memberKilled": -10,
+    "resourceSharing": 8
+  },
+  "clanRoles": [
+    {
+      "id": "leader",
+      "rank": 3,
+      "authority": "full",
+      "perks": ["command_fleets", "declare_wars", "form_alliances"]
+    },
+    {
+      "id": "officer",
+      "rank": 2,
+      "authority": "limited",
+      "perks": ["lead_squads", "tactical_decisions", "recruit"]
+    },
+    {
+      "id": "member",
+      "rank": 1,
+      "authority": "none",
+      "perks": ["shared_resources", "clan_benefits"]
+    }
+  ]
+}

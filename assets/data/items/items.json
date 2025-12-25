@@ -1,0 +1,42 @@
+[
+  {
+    "id": "copper_ore",
+    "name": "Copper Ore",
+    "type": "raw_material",
+    "value": 100,
+    "rarity": "common",
+    "weight": 1.0
+  },
+  {
+    "id": "gold",
+    "name": "Gold",
+    "type": "rare_material",
+    "value": 500,
+    "rarity": "rare",
+    "weight": 1.5
+  },
+  {
+    "id": "food_supplies",
+    "name": "Food Supplies",
+    "type": "consumable",
+    "value": 50,
+    "rarity": "common",
+    "weight": 0.5
+  },
+  {
+    "id": "medical_supplies",
+    "name": "Medical Supplies",
+    "type": "consumable",
+    "value": 200,
+    "rarity": "uncommon",
+    "weight": 0.3
+  },
+  {
+    "id": "advanced_circuits",
+    "name": "Advanced Circuits",
+    "type": "technology",
+    "value": 1000,
+    "rarity": "rare",
+    "weight": 0.1
+  }
+]

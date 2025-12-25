@@ -1,0 +1,46 @@
+name: Validate and Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ created ]
+
+jobs:
+  validate-and-build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build DataValidator
+      run: dotnet build tools/DataValidator/DataValidator.csproj -c Release
+      
+    - name: Validate game data
+      run: dotnet run -c Release --project tools/DataValidator/DataValidator.csproj -- "${{ github.workspace }}/assets/data"
+      
+    - name: Build SpaceTradeEngine
+      run: dotnet build -c Release
+      
+    - name: Publish (Release builds only)
+      if: github.event_name == 'release'
+      run: dotnet publish -c Release -r win-x64 --self-contained -p:PublishSingleFile=true
+      
+    - name: Upload artifact (Release builds only)
+      if: github.event_name == 'release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: SpaceTradeEngine-win-x64
+        path: bin/Release/net10.0/win-x64/publish/
+        retention-days: 90

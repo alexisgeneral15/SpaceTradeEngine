@@ -1,0 +1,13 @@
+{
+  "id": 4,
+  "name": "Free Port Haven",
+  "faction": "pirates",
+  "inventory": {
+    "narcotics": 30,
+    "luxury_wine": 15,
+    "exotic_spices": 25,
+    "fuel_cells": 80
+  },
+  "buy_wares": ["narcotics", "luxury_wine", "exotic_spices"],
+  "sell_wares": ["narcotics", "fuel_cells"]
+}

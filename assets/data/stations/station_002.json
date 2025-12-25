@@ -1,0 +1,12 @@
+{
+  "id": 2,
+  "name": "Drath Mining Outpost",
+  "faction": "drath_empire",
+  "inventory": {
+    "iron_ore": 1200,
+    "hull_plating": 50,
+    "food_rations": 100
+  },
+  "buy_wares": ["food_rations", "medical_supplies"],
+  "sell_wares": ["iron_ore", "hull_plating"]
+}

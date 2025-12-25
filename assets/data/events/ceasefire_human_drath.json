@@ -1,0 +1,6 @@
+{
+  "type": "ceasefire",
+  "faction_a": "human_federation",
+  "faction_b": "drath_empire",
+  "duration_minutes": 180
+}

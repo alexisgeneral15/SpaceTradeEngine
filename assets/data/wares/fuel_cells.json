@@ -1,0 +1,8 @@
+{
+  "id": "fuel_cells",
+  "name": "Fuel Cells",
+  "type": "commodity",
+  "base_price": 80.0,
+  "volume": 2.0,
+  "illegal_factions": []
+}

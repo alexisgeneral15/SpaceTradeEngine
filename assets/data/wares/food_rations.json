@@ -1,0 +1,8 @@
+{
+  "id": "food_rations",
+  "name": "Food Rations",
+  "type": "commodity",
+  "base_price": 25.0,
+  "volume": 1.0,
+  "illegal_factions": []
+}

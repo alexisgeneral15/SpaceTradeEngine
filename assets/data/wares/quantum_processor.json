@@ -1,0 +1,8 @@
+{
+  "id": "quantum_processor",
+  "name": "Quantum Processor",
+  "type": "component",
+  "base_price": 4500.0,
+  "volume": 1.0,
+  "illegal_factions": []
+}

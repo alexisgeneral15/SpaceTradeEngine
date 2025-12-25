@@ -1,0 +1,344 @@
+# Spatial Partitioning System - Visual Architecture
+
+```
+================================================================================
+                    SPATIAL PARTITIONING SYSTEM ARCHITECTURE
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           YOUR GAME ENGINE                                   │
+│                                                                              │
+│  ┌──────────────────────────────────────────────────────────────────────┐  │
+│  │                        GameEngine.cs                                  │  │
+│  │                                                                        │  │
+│  │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │  │
+│  │  │ EntityManager │───►│ Systems List │───►│ Update Loop  │          │  │
+│  │  └──────────────┘    └──────────────┘    └──────────────┘          │  │
+│  │                                                                        │  │
+│  └────────────────────────────┬───────────────────────────────────────────┘  │
+│                                │                                             │
+│                                │ Registers & Manages                         │
+│                                ▼                                             │
+│  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓  │
+│  ┃              SPATIAL PARTITIONING SYSTEM (NEW!)                      ┃  │
+│  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │
+│                                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  SpatialPartitioningSystem                                          │   │
+│  │  ┌───────────────────────────────────────────────────────────┐     │   │
+│  │  │                     QuadTree                               │     │   │
+│  │  │                                                            │     │   │
+│  │  │     ┌──────────────────────────────────────────┐          │     │   │
+│  │  │     │          Root Node (Level 0)             │          │     │   │
+│  │  │     │         World: -10000 to +10000          │          │     │   │
+│  │  │     └─────┬────────┬────────┬────────┬─────────┘          │     │   │
+│  │  │           │        │        │        │                    │     │   │
+│  │  │      ┌────▼───┐ ┌──▼───┐ ┌──▼───┐ ┌──▼────┐             │     │   │
+│  │  │      │ Node 1 │ │Node 2│ │Node 3│ │Node 4 │             │     │   │
+│  │  │      │  (NE)  │ │ (NW) │ │ (SW) │ │ (SE)  │             │     │   │
+│  │  │      └────┬───┘ └──────┘ └──────┘ └───────┘             │     │   │
+│  │  │           │                                              │     │   │
+│  │  │       (subdivides recursively up to 8 levels deep)      │     │   │
+│  │  │                                                            │     │   │
+│  │  │  Methods:                                                 │     │   │
+│  │  │    • Insert(entity)          - Add to tree               │     │   │
+│  │  │    • Query(rectangle)        - Find in area              │     │   │
+│  │  │    • QueryRadius(pos, r)     - Find in circle            │     │   │
+│  │  │    • FindNearest(pos)        - Find closest              │     │   │
+│  │  │    • Raycast(origin, dir)    - Line-of-sight             │     │   │
+│  │  └───────────────────────────────────────────────────────────┘     │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                │                                            │
+│                                │ Provides Queries To                        │
+│                                ▼                                            │
+│  ┌───────────────────────────────────────────────────────────────────┐    │
+│  │                   DEPENDENT SYSTEMS                                │    │
+│  ├───────────────────────────────────────────────────────────────────┤    │
+│  │                                                                    │    │
+│  │  ┌──────────────────────────────────────────────────────────┐    │    │
+│  │  │  CollisionSystem                                          │    │    │
+│  │  │  ┌─────────────────────────────────────────────────┐     │    │    │
+│  │  │  │ Broad Phase (Spatial Queries)                   │     │    │    │
+│  │  │  │   GetPotentialCollisions() → List<(A, B)>      │     │    │    │
+│  │  │  │   Instead of N² checks, only check nearby!      │     │    │    │
+│  │  │  └─────────────────────────────────────────────────┘     │    │    │
+│  │  │  ┌─────────────────────────────────────────────────┐     │    │    │
+│  │  │  │ Narrow Phase (Precise Testing)                  │     │    │    │
+│  │  │  │   CheckCollision(A, B) → bool                   │     │    │    │
+│  │  │  │   Only test pairs from broad phase              │     │    │    │
+│  │  │  └─────────────────────────────────────────────────┘     │    │    │
+│  │  │  Events: OnCollision, OnTriggerEnter                     │    │    │
+│  │  └──────────────────────────────────────────────────────────┘    │    │
+│  │                                                                    │    │
+│  │  ┌──────────────────────────────────────────────────────────┐    │    │
+│  │  │  TargetingSystem                                          │    │    │
+│  │  │  ┌─────────────────────────────────────────────────┐     │    │    │
+│  │  │  │ Auto-Targeting                                  │     │    │    │
+│  │  │  │   FindBestTarget() uses QueryRadius()           │     │    │    │
+│  │  │  │   Filters by: range, faction, health            │     │    │    │
+│  │  │  │   Prioritizes: close, weak, facing targets      │     │    │    │
+│  │  │  └─────────────────────────────────────────────────┘     │    │    │
+│  │  │  ┌─────────────────────────────────────────────────┐     │    │    │
+│  │  │  │ Predictive Aiming                               │     │    │    │
+│  │  │  │   Calculates lead position for moving targets   │     │    │    │
+│  │  │  │   LeadPos = TargetPos + Velocity * TimeToImpact │     │    │    │
+│  │  │  └─────────────────────────────────────────────────┘     │    │    │
+│  │  │  ┌─────────────────────────────────────────────────┐     │    │    │
+│  │  │  │ Line-of-Sight                                   │     │    │    │
+│  │  │  │   Raycast() checks for obstacles                │     │    │    │
+│  │  │  │   Don't target through asteroids/stations       │     │    │    │
+│  │  │  └─────────────────────────────────────────────────┘     │    │    │
+│  │  └──────────────────────────────────────────────────────────┘    │    │
+│  │                                                                    │    │
+│  │  ┌──────────────────────────────────────────────────────────┐    │    │
+│  │  │  CullingSystem                                            │    │    │
+│  │  │  ┌─────────────────────────────────────────────────┐     │    │    │
+│  │  │  │ Frustum Culling                                 │     │    │    │
+│  │  │  │   QueryCameraView() → visible entities only     │     │    │    │
+│  │  │  │   Viewport: 1920x1080, Zoom: 1.5x              │     │    │    │
+│  │  │  │   Returns: ~200 entities instead of 10,000!     │     │    │    │
+│  │  │  └─────────────────────────────────────────────────┘     │    │    │
+│  │  │  Performance: 50x rendering speedup                       │    │    │
+│  │  └──────────────────────────────────────────────────────────┘    │    │
+│  │                                                                    │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                            COMPONENT ARCHITECTURE
+================================================================================
+
+Entity (e.g., "Player Ship")
+├─ TransformComponent ⭐ (REQUIRED for spatial system)
+│    └─ Position: Vector2(100, 200)
+│    └─ Rotation: 1.57f (90 degrees)
+│    └─ Scale: Vector2(1, 1)
+│
+├─ CollisionComponent (for collision detection)
+│    └─ Radius: 25f
+│    └─ IsTrigger: false
+│    └─ GetBounds() → Rectangle
+│
+├─ TargetingComponent (for weapons)
+│    └─ MaxRange: 600f
+│    └─ AutoTarget: true
+│    └─ CurrentTarget: Entity (auto-updated!)
+│    └─ LeadPosition: Vector2 (where to aim)
+│    └─ IsInRange: bool
+│    └─ HasLineOfSight: bool
+│
+├─ FactionComponent (for friend/foe)
+│    └─ FactionId: "human_federation"
+│    └─ FactionName: "Humans"
+│
+├─ TagComponent (for categorization)
+│    └─ Tags: ["ship", "combat", "player"]
+│    └─ HasTag("ship") → true
+│
+├─ SelectionComponent (for UI)
+│    └─ IsSelectable: true
+│    └─ IsSelected: false
+│    └─ SelectionColor: Yellow
+│    └─ SelectionRadius: 50f
+│
+├─ HealthComponent
+│    └─ MaxHealth: 100f
+│    └─ CurrentHealth: 85f
+│
+└─ VelocityComponent
+     └─ LinearVelocity: Vector2(50, 0)
+     └─ AngularVelocity: 0.1f
+
+================================================================================
+                              DATA FLOW
+================================================================================
+
+Frame Update (60 FPS):
+
+1. EntityManager.Update(deltaTime)
+   │
+   ├─► SpatialPartitioningSystem.Update()
+   │    ├─ Clear QuadTree
+   │    └─ Insert all entities with TransformComponent
+   │       (Entities auto-positioned in tree based on location)
+   │
+   ├─► CollisionSystem.Update()
+   │    ├─ Call: GetPotentialCollisions() 
+   │    │   └─► QuadTree finds nearby pairs (fast!)
+   │    ├─ For each pair: CheckCollision() (precise)
+   │    └─ Fire events: OnCollision, OnTriggerEnter
+   │
+   ├─► TargetingSystem.Update()
+   │    ├─ For each entity with TargetingComponent:
+   │    │   ├─ If no target: QueryRadius() to find one
+   │    │   ├─ Update target distance/direction
+   │    │   ├─ Calculate lead position
+   │    │   └─ Check line-of-sight with Raycast()
+   │
+   └─► Other systems...
+
+Draw (60 FPS):
+
+1. RenderingSystem.Draw()
+   │
+   ├─► CullingSystem.GetVisibleEntities()
+   │    └─► QuadTree.QueryCameraView()
+   │        Returns: Only entities in camera frustum
+   │        (e.g., 200 out of 10,000 entities)
+   │
+   └─► Render only visible entities
+       └─ 50x fewer draw calls = smooth 60 FPS!
+
+================================================================================
+                         PERFORMANCE COMPARISON
+================================================================================
+
+WITHOUT Spatial Partitioning:
+┌─────────────────────────────────────────────────────────────────┐
+│ Find Collisions (Brute Force):                                  │
+│                                                                  │
+│ for entity in entities:          ┐                              │
+│     for other in entities:       │ Checks: N × N                │
+│         if CheckCollision():     │                              │
+│             HandleCollision()    ┘                              │
+│                                                                  │
+│ 100 entities:    100 × 100 = 10,000 checks                      │
+│ 1,000 entities:  1,000 × 1,000 = 1,000,000 checks (LAG!)       │
+│ 10,000 entities: 10,000 × 10,000 = 100,000,000 checks (CRASH!) │
+└─────────────────────────────────────────────────────────────────┘
+
+WITH Spatial Partitioning:
+┌─────────────────────────────────────────────────────────────────┐
+│ Find Collisions (QuadTree):                                     │
+│                                                                  │
+│ pairs = GetPotentialCollisions()  ┐                             │
+│ for (a, b) in pairs:              │ Checks: N × log(N)          │
+│     if CheckCollision(a, b):      │                             │
+│         HandleCollision(a, b)     ┘                             │
+│                                                                  │
+│ 100 entities:    ~700 checks                                    │
+│ 1,000 entities:  ~7,000 checks (SMOOTH!)                        │
+│ 10,000 entities: ~70,000 checks (PLAYABLE!)                     │
+└─────────────────────────────────────────────────────────────────┘
+
+Improvement: 100x - 1000x faster!
+
+================================================================================
+                           USAGE EXAMPLES
+================================================================================
+
+Example 1: Find Nearest Enemy
+┌─────────────────────────────────────────────────────────────────┐
+│ var myPos = ship.GetComponent<TransformComponent>().Position;  │
+│ var myFaction = ship.GetComponent<FactionComponent>();         │
+│                                                                  │
+│ var enemy = _spatialSystem.FindNearestMatching(                │
+│     myPos,                                                      │
+│     entity => {                                                 │
+│         var faction = entity.GetComponent<FactionComponent>(); │
+│         return faction?.FactionId != myFaction.FactionId;      │
+│     },                                                          │
+│     1000f  // Max search radius                                │
+│ );                                                              │
+│                                                                  │
+│ if (enemy != null) {                                            │
+│     AttackTarget(enemy);                                        │
+│ }                                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+Example 2: AOE Explosion
+┌─────────────────────────────────────────────────────────────────┐
+│ void Explode(Vector2 center, float radius, float damage) {     │
+│     var entities = _spatialSystem.QueryRadius(center, radius); │
+│                                                                  │
+│     foreach (var entity in entities) {                          │
+│         var health = entity.GetComponent<HealthComponent>();   │
+│         if (health != null) {                                   │
+│             var pos = entity.GetComponent<Transform>().Pos;    │
+│             float dist = Vector2.Distance(center, pos);        │
+│             float mult = 1.0f - (dist / radius);               │
+│             health.TakeDamage(damage * mult);                  │
+│         }                                                       │
+│     }                                                           │
+│ }                                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+Example 3: Auto-Targeting (Automatic!)
+┌─────────────────────────────────────────────────────────────────┐
+│ // Just add the component, system handles everything!          │
+│ ship.AddComponent(new TargetingComponent {                     │
+│     MaxRange = 600f,                                            │
+│     AutoTarget = true,                                          │
+│     PreferWeakTargets = true                                    │
+│ });                                                             │
+│                                                                  │
+│ // Later, in your weapon firing code:                          │
+│ var targeting = ship.GetComponent<TargetingComponent>();       │
+│ if (targeting.CurrentTarget != null &&                         │
+│     targeting.IsInRange &&                                     │
+│     targeting.HasLineOfSight) {                                │
+│     FireWeapon(targeting.LeadPosition); // Auto-aim!           │
+│ }                                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                          DEBUG VISUALIZATION
+================================================================================
+
+Press F4 to see QuadTree boundaries:
+
+   ┌──────────────────────────────────────────────────────┐
+   │                                                       │ Root Node
+   │           ┌─────────────┬─────────────┐             │ (entire world)
+   │           │             │             │             │
+   │           │     NW      │     NE      │             │
+   │           │             │             │             │
+   │           │             │             │             │
+   │           ├─────────────┼─────────────┤             │
+   │           │             │             │             │
+   │           │     SW      │     SE      │             │
+   │           │             │  ┌──┬──┐   │             │ SE subdivided
+   │           │             │  └──┴──┘   │             │ (has >8 objects)
+   │           └─────────────┴─────────────┘             │
+   │                                                       │
+   └──────────────────────────────────────────────────────┘
+
+Cyan lines show QuadTree node boundaries
+More subdivisions = more entities in that area
+
+================================================================================
+                        INTEGRATION CHECKLIST
+================================================================================
+
+✅ Step 1: Initialize Systems
+   └─ Add to GameEngine.cs Initialize() method
+   
+✅ Step 2: Add Components to Entities  
+   └─ TransformComponent (required!)
+   └─ CollisionComponent (for collisions)
+   └─ TargetingComponent (for weapons)
+   └─ FactionComponent (for teams)
+   └─ TagComponent (for categories)
+   
+✅ Step 3: Use Spatial Queries
+   └─ QueryRadius() for nearby entities
+   └─ FindNearest() for closest entity
+   └─ GetPotentialCollisions() for collision pairs
+   
+✅ Step 4: Handle Events
+   └─ Subscribe to OnCollision
+   └─ Subscribe to OnTriggerEnter
+   
+✅ Step 5: Enable Culling
+   └─ Connect CullingSystem to RenderingSystem
+   └─ Use GetVisibleEntities() for rendering
+
+================================================================================
+
+For complete documentation, see:
+  • SPATIAL_INTEGRATION.md      (Quick start)
+  • SPATIAL_PARTITIONING_GUIDE.md (Complete reference)
+  • SpatialPartitioningExample.cs (Code examples)
+
+================================================================================

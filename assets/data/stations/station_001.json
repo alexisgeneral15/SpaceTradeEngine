@@ -1,0 +1,11 @@
+{
+  "id": 1,
+  "name": "Orion Trade Hub",
+  "faction": "human_federation",
+  "inventory": {
+    "iron_ore": 500,
+    "luxury_wine": 20
+  },
+  "buy_wares": ["iron_ore"],
+  "sell_wares": ["luxury_wine"]
+}

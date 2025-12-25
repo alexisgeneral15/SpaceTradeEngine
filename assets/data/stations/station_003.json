@@ -1,0 +1,12 @@
+{
+  "id": 3,
+  "name": "Sirak Arsenal",
+  "faction": "sirak_empire",
+  "inventory": {
+    "plasma_cannon": 20,
+    "fuel_cells": 150,
+    "quantum_processor": 10
+  },
+  "buy_wares": ["iron_ore", "fuel_cells"],
+  "sell_wares": ["plasma_cannon", "quantum_processor"]
+}

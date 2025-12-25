@@ -1,0 +1,145 @@
+{
+  "SpaceTrade System": {
+    "scope": "csharp",
+    "prefix": "sts-system",
+    "description": "ECS system template for SpaceTradeEngine",
+    "body": [
+      "public class ${1:MySystem} : System",
+      "{",
+      "    protected override bool ShouldProcess(Entity entity)",
+      "        => entity.HasComponent<${2:MyComponent}>();",
+      "",
+      "    public override void Update(float deltaTime)",
+      "    {",
+      "        foreach (var e in _entities)",
+      "        {",
+      "            var c = e.GetComponent<${2:MyComponent}>();",
+      "            // TODO: logic",
+      "        }",
+      "    }",
+      "}",
+      "",
+      "// Register in GameEngine.Initialize():",
+      "// var sys = new ${1:MySystem}();",
+      "// _entityManager.RegisterSystem(sys);"
+    ]
+  },
+  "SpaceTrade Component": {
+    "scope": "csharp",
+    "prefix": "sts-component",
+    "description": "ECS component template",
+    "body": [
+      "public class ${1:MyComponent} : Component",
+      "{",
+      "    public float ${2:Value} { get; set; } = 1f;",
+      "",
+      "    public override void Update(float deltaTime)",
+      "    {",
+      "        // Optional per-frame logic",
+      "    }",
+      "}",
+      "",
+      "// Usage:",
+      "// var e = _entityManager.CreateEntity(\"Example\");",
+      "// e.AddComponent(new ${1:MyComponent}());"
+    ]
+  },
+  "SpaceTrade Event PubSub": {
+    "scope": "csharp",
+    "prefix": "sts-event",
+    "description": "Event publish/subscribe pattern",
+    "body": [
+      "// Define event",
+      "public class ${1:MyEvent}",
+      "{",
+      "    public int EntityId { get; set; }",
+      "}",
+      "",
+      "// Publish",
+      "_eventSystem.Publish(new ${1:MyEvent} { EntityId = entity.Id });",
+      "",
+      "// Subscribe",
+      "_eventSystem.Subscribe<${1:MyEvent}>(evt =>",
+      "{",
+      "    // handle event",
+      "});"
+    ]
+  },
+  "SpaceTrade Ship JSON": {
+    "scope": "json",
+    "prefix": "sts-ship",
+    "description": "Ship template JSON",
+    "body": [
+      "{",
+      "  \"id\": \"${1:prototype_fighter}\",",
+      "  \"name\": \"${2:Prototype Fighter}\",",
+      "  \"type\": \"fighter\",",
+      "  \"hull\": { \"hp\": ${3:220}, \"armor\": ${4:8} },",
+      "  \"engines\": { \"max_speed\": ${5:280}, \"acceleration\": ${6:110} },",
+      "  \"cost\": ${7:220000}",
+      "}"
+    ]
+  },
+  "SpaceTrade Faction JSON": {
+    "scope": "json",
+    "prefix": "sts-faction",
+    "description": "Faction definition JSON",
+    "body": [
+      "{",
+      "  \"id\": \"${1:human_federation}\",",
+      "  \"name\": \"${2:Human Federation}\",",
+      "  \"alignment\": \"${3:neutral}\",",
+      "  \"description\": \"${4:Description}\",",
+      "  \"territories\": [\"${5:sector1}\", \"${6:sector2}\"],",
+      "  \"technologies\": [\"${7:tech1}\", \"${8:tech2}\"]",
+      "}"
+    ]
+  },
+  "SpaceTrade Station JSON": {
+    "scope": "json",
+    "prefix": "sts-station",
+    "description": "Station template JSON",
+    "body": [
+      "{",
+      "  \"id\": \"${1:trade_hub}\",",
+      "  \"name\": \"${2:Trade Hub}\",",
+      "  \"faction\": \"${3:human_federation}\",",
+      "  \"type\": \"${4:trade}\",",
+      "  \"position\": { \"x\": ${5:0}, \"y\": ${6:0} },",
+      "  \"wares\": [\"${7:ore}\", \"${8:food}\"],",
+      "  \"max_docked\": ${9:12}",
+      "}"
+    ]
+  },
+  "SpaceTrade Entity Spawn": {
+    "scope": "csharp",
+    "prefix": "sts-entity",
+    "description": "Spawn an entity with common components",
+    "body": [
+      "var ${1:ship} = _entityManager.CreateEntity(\"${2:Ship}\");",
+      "${1:ship}.AddComponent(new TransformComponent { Position = new Vector2(${3:0}, ${4:0}) });",
+      "${1:ship}.AddComponent(new VelocityComponent());",
+      "${1:ship}.AddComponent(new CollisionComponent { Radius = ${5:20f} });",
+      "${1:ship}.AddComponent(new HealthComponent { MaxHealth = ${6:100f}, CurrentHealth = ${6:100f} });",
+      "${1:ship}.AddComponent(new FactionComponent(\"${7:faction}\"));",
+      "${1:ship}.AddComponent(new WeaponComponent { Damage = ${8:10f}, Range = ${9:700f}, Cooldown = ${10:0.6f} });",
+      "${1:ship}.AddComponent(new RankComponent { CurrentRank = Rank.${11:Regular}, EntityType = EntityType.${12:Military} });"
+    ]
+  },
+  "SpaceTrade Mission Accept": {
+    "scope": "csharp",
+    "prefix": "sts-mission-accept",
+    "description": "Accept a mission and track it",
+    "body": [
+      "// Accept mission by id",
+      "var missionSystem = _entityManager.GetSystem<MissionSystem>();",
+      "if (missionSystem != null)",
+      "{",
+      "    missionSystem.AcceptMission(${1:entity}, \"${2:mission_id}\");",
+      "}",
+      "",
+      "// Later, list active missions",
+      "// var active = missionSystem?.GetActiveMissions(entity.Id);"
+    ]
+  }
+}

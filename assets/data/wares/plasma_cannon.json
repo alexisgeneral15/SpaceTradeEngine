@@ -1,0 +1,8 @@
+{
+  "id": "plasma_cannon",
+  "name": "Plasma Cannon",
+  "type": "component",
+  "base_price": 1500.0,
+  "volume": 5.0,
+  "illegal_factions": []
+}

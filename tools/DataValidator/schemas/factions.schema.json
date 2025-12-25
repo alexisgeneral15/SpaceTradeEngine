@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetradeengine/schemas/factions.schema.json",
+  "title": "FactionData",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "alignment": { "type": "string" },
+    "description": { "type": "string" },
+    "government_type": { "type": "string" },
+    "colors": { "type": "object" },
+    "territories": { "type": "array", "items": { "type": "string" } },
+    "technologies": { "type": "array", "items": { "type": "string" } },
+    "relationships": {
+      "type": "object",
+      "additionalProperties": { "type": "number", "minimum": -100, "maximum": 100 }
+    }
+  }
+}

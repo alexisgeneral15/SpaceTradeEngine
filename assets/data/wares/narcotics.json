@@ -1,0 +1,8 @@
+{
+  "id": "narcotics",
+  "name": "Narcotics",
+  "type": "illegal",
+  "base_price": 2000.0,
+  "volume": 1.0,
+  "illegal_factions": ["human_federation", "drath_empire"]
+}

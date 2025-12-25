@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetradeengine/schemas/events.schema.json",
+  "title": "GameEvent",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["shortage", "embargo", "war", "raid", "ceasefire", "price_spike", "gate_blocked"]
+    },
+    "ware_id": { "type": "string" },
+    "sector_id": { "type": "string" },
+    "severity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "duration_minutes": { "type": "integer", "minimum": 1 },
+    "faction_a": { "type": "string" },
+    "faction_b": { "type": "string" },
+    "attacker": { "type": "string" },
+    "defender": { "type": "string" },
+    "start_sector": { "type": "string" },
+    "faction": { "type": "string" },
+    "target_station_id": { "type": "integer", "minimum": 0 },
+    "delta_percent": { "type": "number", "minimum": -100, "maximum": 100 },
+    "gate_id": { "type": "string" },
+    "reason": { "type": "string" }
+  }
+}

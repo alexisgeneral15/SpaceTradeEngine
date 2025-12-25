@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetradeengine/schemas/stations.schema.json",
+  "title": "StationTemplate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "faction", "inventory"],
+  "properties": {
+    "id": { "type": "integer", "minimum": 0 },
+    "name": { "type": "string", "minLength": 1 },
+    "faction": { "type": "string", "minLength": 1 },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "buy_wares": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "default": []
+    },
+    "sell_wares": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "default": []
+    }
+  }
+}

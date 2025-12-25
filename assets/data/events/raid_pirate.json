@@ -1,0 +1,6 @@
+{
+  "type": "raid",
+  "faction": "pirates",
+  "target_station_id": 1,
+  "severity": 0.6
+}

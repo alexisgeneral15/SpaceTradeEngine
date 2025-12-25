@@ -1,0 +1,7 @@
+{
+  "type": "shortage",
+  "ware_id": "food_rations",
+  "sector_id": "alpha_centauri",
+  "severity": 0.8,
+  "duration_minutes": 120
+}
